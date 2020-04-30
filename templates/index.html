@@ -1,0 +1,23 @@
+{% extends "layout.html" %} {% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	
+	$('#button').on('click', function() {
+		localStorage.setItem('username', $('#myMessage').val());
+		$('#myMessage').val('');
+        window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/chat')
+	});
+
+});
+</script>
+
+<input type="text" id="myMessage">
+<button id="button">Username</button>
+
+
+{% endblock content %}
+

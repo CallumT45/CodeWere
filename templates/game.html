@@ -1,0 +1,305 @@
+{% extends "layout.html" %} {% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		var username = localStorage.getItem('username');
+		if (username == null) {
+			window.location = "/";
+		}
+		var socket = io.connect('http://127.0.0.1:5000');
+
+		var users = [{
+			'username': "George",
+			'id': 1
+		}, {
+			'username': "Herd",
+			'id': 2
+		}, {
+			'username': "Yop",
+			'id': 3
+		}, {
+			'username': "Cal",
+			'id': 4
+		}, {
+			'username': "Benji",
+			'id': 5
+		}, {
+			'username': "Prick",
+			'id': 6
+		}];
+
+		var votes = [];
+		var roles = [];
+		var game_users = [];
+		var cupid_votes = [];
+		var doctor_choice = 0;
+
+
+		socket.on('connect', () => {
+			socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
+		});
+
+		socket.on('new_user', function (data) {
+			if (!check_username(users, data['username'])) {
+				obj = {
+					'username': data['username'],
+					'id': data['id']
+				}
+				users.push(obj);
+			} else {
+				var new_username = data['username'] + 1;
+				socket.emit('new_username', { 'channel': window.location.pathname.substr(1), 'old_username': data['username'], 'new_username': new_username, 'id': data['id'] })
+			}
+			socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
+		});
+
+		socket.on('user_leave', function (sid) {
+			for (var i = 0; i < users.length; i++) {
+				if (users[i].id == sid) {
+					users.splice(i, 1);
+				}
+			}
+			$("#online").empty();
+			for (var i = 0; i < users.length; i++) {
+				$("#online").append('<li>' + users[i].username + '</li>');
+			}
+		});
+
+
+
+		socket.on('new_user_list', function (data) {
+			if (users.length < data.length) {
+				users = data
+			}
+			$("#online").empty();
+			for (var i = 0; i < users.length; i++) {
+				$("#online").append('<li>' + users[i].username + '</li>');
+			}
+		});
+
+		socket.on('new_username_2', function (data) {
+			if (data['old_username'] == username && socket.id == data['id']) {
+				localStorage.setItem('username', data['new_username']);
+				username = data['new_username']
+				socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
+			}
+		});
+
+		socket.on('group_vote', function (vote) {
+			votes.push(vote)
+			console.log(votes)
+			if (votes.length == 2) {// users.length
+				console.log(most_voted(votes));
+				socket.emit('player_remove', { 'channel': window.location.pathname.substr(1), 'player_id': game_users[most_voted(votes)].id });
+			}
+		});
+
+
+		socket.on('cupid_vote', function (vote) {
+			cupid_votes.push(vote)
+			console.log(cupid_votes)
+		});
+		
+		socket.on('doctor_choice', function (vote) {
+			doctor_choice = vote
+			console.log(doctor_choice)
+		});
+
+		socket.on('player_remove', function (sid) {
+			for (var i = 0; i < game_users.length; i++) {
+				if (game_users[i].id == sid) {
+					game_users.splice(i, 1);
+				}
+			}
+			console.log(game_users);
+		});
+
+
+
+		socket.on('set_roles', function (data) {
+			roles = data
+			game_users = [...users]
+			console.log(data)
+			
+			setTimeout(function () { socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn':'doctor' }); }, 3000);
+		});
+
+		socket.on('show_werewolves', function (werewolves) {
+			document.getElementById("game_div_title").innerHTML = "Werewolves";
+			document.getElementById("game_div").style.display = "";
+			if (roles[username] == "Werewolf") {
+
+				document.getElementById("game_div_body").innerHTML = werewolves;
+
+			} else {
+				document.getElementById("game_div_body").innerHTML = "Werewolves open your eyes"
+			}
+
+		});
+
+
+		socket.on('cupids_turn', function () {
+			document.getElementById("game_div_title").innerHTML = "Cupid";
+			document.getElementById("game_div").style.display = "";
+			if (roles[username] == "Cupid") {
+				// document.getElementById("game_div_body").innerHTML = werewolves;
+				draw_table("Cupid")
+
+			} else {
+				document.getElementById("game_div_body").innerHTML = "Cupids arrow is on its way"
+			}
+		});
+
+		socket.on('seers_turn', function () {
+			document.getElementById("game_div_title").innerHTML = "Seer";
+			document.getElementById("game_div").style.display = "";
+			if (roles[username] == "Seer") {
+				// document.getElementById("game_div_body").innerHTML = werewolves;
+				draw_table("Seer")
+
+			} else {
+				document.getElementById("game_div_body").innerHTML = "Seer is peering"
+			}
+
+		});
+
+		socket.on('doctors_turn', function () {
+			document.getElementById("game_div_title").innerHTML = "Doctor";
+			document.getElementById("game_div").style.display = "";
+			if (roles[username] == "Seer") {
+				// document.getElementById("game_div_body").innerHTML = werewolves;
+				draw_table("Doctor")
+
+			} else {
+				document.getElementById("game_div_body").innerHTML = "Doctor may be preforming a miracle"
+			}
+
+		});
+
+
+
+		$('#start_button').on('click', function () {
+			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
+			// draw_table()
+			// setTimeout( function () {draw_table("Cupid");}, 10000);
+
+		});
+
+		function check_username(obj, name) {
+			for (var i = 0; i < obj.length; i++)
+				if (obj[i].username == name) {
+					return true
+				}
+			return false
+		}
+
+		function most_voted(votes) {
+			counts = {}
+			for (var i = 0; i < votes.length; i++) {
+				if (votes[i] in counts) {
+					counts[votes[i]] += 1
+				} else {
+					counts[votes[i]] = 1
+				}
+			}
+			var keys = Object.keys(counts);
+			var largest = Math.max.apply(null, keys.map(x => counts[x]));
+			var result = keys.reduce((result, key) => { if (counts[key] === largest) { result.push(key); } return result; }, []);
+			return result
+		}
+
+
+		function draw_table(state) {
+			for (var j = 0; j < game_users.length; j++) {
+
+				if (j % 2 == 0) {
+					row = document.createElement("tr");
+					row.setAttribute('id', 'row' + (j / 2).toString())
+					document.getElementById('vote_table').appendChild(row);
+				}
+				b = document.createElement("td");
+				b.setAttribute("class", "guess")
+				b.innerHTML = '<br>' + game_users[j].username;
+				b.innerHTML += "<input type='hidden' value='" + j + "'>";
+				b.addEventListener("click", function (e) {
+					// insert the value from the autocomplete text field:
+					value = this.getElementsByTagName("input")[0].value;
+					if (state == "Day") {
+						document.getElementById('vote_table').innerHTML = "";
+						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": "group" });
+					} else if (state == "Cupid") {
+						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": "cupid" });
+						console.log(cupid_votes)
+						if (cupid_votes.length == 1) {// want to to close when length is 2, so close when this is 1, then the second vote is added
+							document.getElementById('vote_table').innerHTML = "";
+						}
+					} else if (state == "Seer") {
+						document.getElementById("game_div_body").innerHTML = game_users[value].username + " => " + roles[game_users[value].username];
+						document.getElementById('vote_table').innerHTML = "";
+					}
+					else if (state == "Doctor") {
+						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": "doctor" });
+						document.getElementById('vote_table').innerHTML = "";
+					}
+				
+				});
+				document.getElementById('row' + Math.floor(j / 2).toString()).appendChild(b);
+
+
+			}
+		}
+
+
+
+		// Show Werewolves
+		// Cupid
+		// Night
+		// Day
+		// etc
+
+		// Night => Werewolves => Doctor => Seer => Results
+
+		// Day => Discussion then group vote
+
+
+	});
+
+
+
+
+</script>
+
+<div class="row">
+	<div class="col-sm-6">
+		<div class="card">
+			<h2 class="card-title">Online</h2>
+			<div class="card-body">
+				<ul id="online"></ul>
+				<button id="start_button">Start</button>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-6">
+		<div class="card">
+			<h2 class="card-title">Vote</h2>
+			<div class="card-body">
+				<table id="vote_table" class="table"></table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card text-white bg-dark mb-3" id="game_div" style="display: none;">
+	<div class="card-header" id="game_div_title"></div>
+	<div class="card-body" id="game_div_body">
+		<!-- <table id="vote_table" class="table"></table> -->
+	</div>
+</div>
+
+
+
+
+
+{% endblock content %}
