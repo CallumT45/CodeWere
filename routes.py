@@ -7,13 +7,22 @@ socketio = SocketIO(app)
 
 clients = {}
 
+role_dict = {'a': "Werewolf",
+'b': "Werewolf",
+'e': "Doctor",
+'g': "Seer",
+'Prick': "Villager",
+'Yop': "Cupid",
+'Benji': "Villager",
+'Cal': "Villager"}
+
 
 @socketio.on("game_start")
 def message(data):
     room = data['channel']
     users = data['users'] 
     ww = Werewolf([index['username'] for index in users])
-    emit('set_roles',ww.role_dict , room=room)
+    emit('set_roles',role_dict , room=room)
     emit('show_werewolves',ww.werewolves, room=room)
 
 @socketio.on("turn")
@@ -26,6 +35,8 @@ def cupid(data):
         emit('seers_turn', room=room)
     elif turn == "doctor":
         emit('doctors_turn', room=room)
+    elif turn == "werewolf":
+        emit('werewolves_turn', room=room)
     
 
 @socketio.on("vote")
@@ -38,6 +49,8 @@ def vote(data):
         emit('cupid_vote',data['vote'], room=room)
     elif state == "doctor":
         emit('doctor_choice',data['vote'], room=room)
+    elif state == "werewolf":
+        emit('were_choice',data, room=room)
 
 
 @socketio.on("player_remove")
