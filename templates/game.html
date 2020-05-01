@@ -8,6 +8,7 @@
 		if (username == null) {
 			window.location = "/";
 		}
+
 		var socket = io.connect('http://127.0.0.1:5000');
 
 		var users = [{
@@ -54,7 +55,7 @@
 				}
 				users.push(obj);
 			} else {
-				var new_username = data['username'] + 1;
+				var new_username = data['username'] + " the first!";
 				socket.emit('new_username', { 'channel': window.location.pathname.substr(1), 'old_username': data['username'], 'new_username': new_username, 'id': data['id'] })
 			}
 			socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
@@ -101,6 +102,27 @@
 			}
 		});
 
+		socket.on('remove_player', function (username) {
+			// first check if the removed player was a werewolf, if so, decrement number of werewolves
+			// then check to see if the removed user was under cupids influence, if so remove both
+			if (roles[username] == "Werewolf") {
+				num_werewolves -= 1;
+			}
+			if (cupid_votes.includes(username)) {
+				if (cupid_votes[0] == username) {
+					cupid_votes.splice(0, 1);
+				} else {
+					cupid_votes.splice(1, 1);
+				}
+
+				document.getElementById("game_div_body").innerHTML = "Overcome with grief by the loss of " + username + ", " + cupid_votes[0] + " killed themself!"
+				remove_user(username)
+				remove_user(cupid_votes[0])
+			} else {
+				remove_user(username)
+			}
+		});
+
 		socket.on('were_choice', function (data) {
 			for (var i = 0; i < were_choice.length; i++) {
 				if (were_choice[i].username == data['username']) {
@@ -139,14 +161,14 @@
 			console.log(doctor_choice)
 		});
 
-		socket.on('player_remove', function (sid) {
-			for (var i = 0; i < game_users.length; i++) {
-				if (game_users[i].id == sid) {
-					game_users.splice(i, 1);
-				}
-			}
-			console.log(game_users);
-		});
+		// socket.on('player_remove', function (sid) {
+		// 	for (var i = 0; i < game_users.length; i++) {
+		// 		if (game_users[i].id == sid) {
+		// 			game_users.splice(i, 1);
+		// 		}
+		// 	}
+		// 	console.log(game_users);
+		// });
 
 
 
@@ -155,7 +177,8 @@
 			game_users = [...users]
 			console.log(data)
 			document.getElementById('vote_table').innerHTML = "";
-			night()
+
+
 			// setTimeout(function () { socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' }); }, 3000);
 		});
 
@@ -225,13 +248,19 @@
 			}
 
 		});
+		
+		socket.on('outcome_turn', function () {
+			outcome()
+		});
 
 
 
-		$('#start_button').on('click', function () {
+		$('#start_button').on('click', async function () {
 			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
-			// draw_table()
-			// setTimeout( function () {draw_table("Cupid");}, 10000);
+
+			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
+			await sleep(10000)
+			night()
 
 		});
 
@@ -281,7 +310,7 @@
 						document.getElementById('vote_table').innerHTML = "";
 						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": "group" });
 					} else if (state == "cupid") {
-						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state });
+						socket.emit('vote', { 'vote': game_users[value].username, 'channel': window.location.pathname.substr(1), "state": state });
 						console.log(cupid_votes)
 						if (cupid_votes.length == 1) {// want to to close when length is 2, so close when this is 1, then the second vote is added
 							document.getElementById('vote_table').innerHTML = "";
@@ -312,34 +341,31 @@
 			document.getElementById('vote_table').innerHTML = "";
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
 			await progress("werewolf", 30)
-			console.log("Seers Turn")
+
 			document.getElementById('vote_table').innerHTML = "";
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
 			await progress("seer", 5)
+
 			document.getElementById('vote_table').innerHTML = "";
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
 			await progress("doctor", 5)
-			outcome()
+
+			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
+			
 		}
 
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 		async function progress(state, time_out) {
-			refs = {
-				'werewolf': werewolf_overall_choice,
-				'seer': seer_done,
-				'doctor': doctor_choice
-			}
-
 			var flag = null;
 			var i = 0
 			while (i < time_out && !flag) {
 				if (state == 'werewolf') {
 					flag = werewolf_overall_choice;
-				}else if (state == "seer") {
+				} else if (state == "seer") {
 					flag = seer_done;
-				}else if (state == "doctor") {
+				} else if (state == "doctor") {
 					flag = doctor_choice;
 				}
 
@@ -353,15 +379,26 @@
 			doctor_choice = null
 			seer_done = false
 		}
-		function outcome(){
+		function outcome() {
 			document.getElementById("game_div_title").innerHTML = "Day break!"
-         if (werewolf_overall_choice != doctor_choice){
-			document.getElementById("game_div_body").innerHTML = game_users[werewolf_overall_choice].username + " was brutally mauled to death last night"
-            //  await self.remove_user(werewolf_choice)
-		 }
-         else{
-			document.getElementById("game_div_body").innerHTML =  game_users[werewolf_overall_choice].username + " was attacked last night, but the doctor managed to save them"
+			if (werewolf_overall_choice != doctor_choice) {
+				document.getElementById("game_div_body").innerHTML = game_users[werewolf_overall_choice].username + " was brutally mauled to death last night"
+				socket.emit('remove_player', { 'username': game_users[werewolf_overall_choice].username, 'channel': window.location.pathname.substr(1) });
+			}
+			else {
+				document.getElementById("game_div_body").innerHTML = game_users[werewolf_overall_choice].username + " was attacked last night, but the doctor managed to save them"
+			}
+			reset()
 		}
+
+		function remove_user(username) {
+			for (var i = 0; i < game_users.length; i++) {
+				if (game_users[i].username == username) {
+					game_users.splice(i, 1);
+				}
+			}
+			console.log("Remove user: " + username)
+			console.log(game_users);
 		}
 
 

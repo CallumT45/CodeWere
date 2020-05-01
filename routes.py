@@ -9,10 +9,10 @@ clients = {}
 
 role_dict = {'a': "Werewolf",
 'b': "Werewolf",
-'e': "Doctor",
-'g': "Seer",
+'c': "Doctor",
+'f': "Seer",
 'Prick': "Villager",
-'Yop': "Cupid",
+'e': "Cupid",
 'Benji': "Villager",
 'Cal': "Villager"}
 
@@ -37,6 +37,9 @@ def cupid(data):
         emit('doctors_turn', room=room)
     elif turn == "werewolf":
         emit('werewolves_turn', room=room)
+    elif turn == "outcome":
+        emit('outcome_turn', room=room)
+        
     
 
 @socketio.on("vote")
@@ -53,10 +56,15 @@ def vote(data):
         emit('were_choice',data, room=room)
 
 
-@socketio.on("player_remove")
+# @socketio.on("player_remove")
+# def remove_player(data):
+#     room = data['channel']
+#     emit('player_remove',data['player_id'], room=room)
+
+@socketio.on("remove_player")
 def remove_player(data):
     room = data['channel']
-    emit('player_remove',data['player_id'], room=room)
+    emit('remove_player',data['username'], room=room)
 
 @socketio.on('join')
 def on_join(data):
