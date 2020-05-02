@@ -8,11 +8,11 @@ socketio = SocketIO(app)
 clients = {}
 
 role_dict = {'a': "Werewolf",
-'b': "Werewolf",
-'c': "Doctor",
-'f': "Seer",
+'f': "Werewolf",
+'e': "Doctor",
+'b': "Seer",
 'Prick': "Villager",
-'e': "Cupid",
+'c': "Cupid",
 'Benji': "Villager",
 'Cal': "Villager"}
 
@@ -39,8 +39,15 @@ def cupid(data):
         emit('werewolves_turn', room=room)
     elif turn == "outcome":
         emit('outcome_turn', room=room)
+    elif turn == "day":
+        emit('day_cycle', room=room)
         
     
+
+@socketio.on("start_new_round")
+def new_round(data):
+    room = data['channel']
+    emit('start_new_round',data['username'], room=room)
 
 @socketio.on("vote")
 def vote(data):
@@ -54,6 +61,7 @@ def vote(data):
         emit('doctor_choice',data['vote'], room=room)
     elif state == "werewolf":
         emit('were_choice',data, room=room)
+
 
 
 # @socketio.on("player_remove")
