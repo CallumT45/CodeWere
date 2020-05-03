@@ -106,7 +106,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/chat')
+@app.route('/werewolf')
 def chat():
     return render_template('game.html')
 
