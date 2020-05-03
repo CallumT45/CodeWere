@@ -22,8 +22,7 @@ def message(data):
     room = data['channel']
     users = data['users'] 
     ww = Werewolf([index['username'] for index in users])
-    emit('set_roles',role_dict , room=room)
-    emit('show_werewolves',ww.werewolves, room=room)
+    emit('set_roles',{'role_dict':role_dict, 'werewolves': ww.werewolves}, room=room)
 
 @socketio.on("turn")
 def cupid(data):
@@ -41,6 +40,8 @@ def cupid(data):
         emit('outcome_turn', room=room)
     elif turn == "day":
         emit('day_cycle', room=room)
+    elif turn == "show_werewolves":
+        emit('show_werewolves', room=room)
         
     
 
