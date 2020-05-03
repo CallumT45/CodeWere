@@ -193,7 +193,8 @@
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "";
-			document.getElementById("game_div_body").innerHTML = "You are " + roles[username]
+			document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
+			 
 		});
 
 		socket.on('show_werewolves', function () {
@@ -318,7 +319,6 @@
 
 
 		function draw_table(state) {
-			console.log("Table Draw")
 			elements = []
 			document.getElementById('vote_table').innerHTML = "";
 			for (var j = 0; j < game_users.length; j++) {
@@ -332,7 +332,7 @@
 				b.setAttribute("class", "guess")
 				b.innerHTML = '<br>' + game_users[j].username;
 				b.innerHTML += "<input type='hidden' value='" + j + "'>";
-				b.addEventListener("click", function (e) {
+				b.addEventListener("click", async function (e) {
 					// insert the value from the autocomplete text field:
 					value = this.getElementsByTagName("input")[0].value;
 
@@ -348,8 +348,9 @@
 						}
 
 					} else if (state == "seer") {
-						document.getElementById("game_div_body").innerHTML = game_users[value].username + " => " + roles[game_users[value].username];
+						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[game_users[value].username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
 						document.getElementById('vote_table').innerHTML = "";
+						await sleep(5000)
 						seer_done = true;
 
 					} else if (state == "doctor") {
@@ -400,7 +401,7 @@
 				} else if (state == "doctor") {
 					flag = doctor_choice;
 				} else if (state == "cupid") {
-					flag = (cupid_votes == 2)
+					flag = (cupid_votes.length == 2)
 				}
 				await sleep(1000)
 				i++
@@ -448,15 +449,11 @@
 		}
 
 
-		// Show Werewolves
-		// Cupid
-		// Night
-		// Day
-		// etc
-
-		// Night => Werewolves => Doctor => Seer => Results
-
-		// Day => Discussion then group vote
+// Add check if player still in game before showing vote table
+// change decrement of werewolves, multiple decrements occuring, cant use int.
+// Add Game Over screen
+// Add case for draw in group vote
+// show vote tallies after group vote
 
 
 	});
