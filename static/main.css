@@ -14,7 +14,7 @@ td{
 
 td:hover {background-color: #f5f5f5;}
 
-
+/* Countdown from https://codepen.io/ninjascribble/pen/rHwkK */
 @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
 
 .card{
@@ -68,6 +68,33 @@ background: #111;
   overflow: hidden;
   position: relative;
   width: 50%;
+}
+
+
+.face {
+  background: rgba(0, 0, 0, .1);
+  border-radius: 50%;
+  height: 296px;
+  left: 52px;
+  padding: 165px 40px 0;
+  position: absolute;
+  width: 296px;
+  text-align: center;
+  top: 52px;
+}
+
+.face h2 {
+  font-weight: 300; 
+}
+
+.face p {
+  border-radius: 20px;
+  font-size: 56px;
+  font-weight: 400;
+  position: absolute;
+  top: 17px;
+  width: 260px;
+  left: 20px;
 }
 
 .timer .hand span {

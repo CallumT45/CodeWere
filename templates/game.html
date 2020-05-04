@@ -170,10 +170,26 @@
 			}
 		});
 
+		function show_votes_f(upOrdown, inner_html) {
+			var output = ""
+			var empty = "\u26AA"
+			var full = "&#128308"
+			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
+			var count_full = werewolves.length - count_empty
+			console.log(count_empty)
+			console.log(count_full)
+			output += full.repeat(count_full) + empty.repeat(count_empty)
+			return '<br>' + output
+
+		}
+
 		socket.on('were_choice', function (data) {
 			for (var i = 0; i < were_choice.length; i++) {
 				if (were_choice[i].username == data['username']) {
-					elements[were_choice[i].choice].style.backgroundColor = "#ffffff"
+					if (roles[username] == "Werewolf") {
+						elements[were_choice[i].choice].innerHTML = '<br>' + game_users[were_choice[i].choice].username + show_votes_f(-1, elements[were_choice[i].choice].innerHTML);
+						elements[were_choice[i].choice].innerHTML += "<input type='hidden' value='" + were_choice[i].choice + "'>";
+					}
 					were_choice.splice(i, 1);
 				}
 			}
@@ -184,13 +200,16 @@
 			were_choice.push(obj)
 			console.log(were_choice)
 			if (roles[username] == "Werewolf") {
-				for (x of were_choice) {
-					elements[x.choice].style.backgroundColor = "#32a4a8"
-				}
+				// for (x of were_choice) {
+				// 	elements[x.choice].innerHTML = '<br>' + game_users[x.choice].username + show_votes_f(1, elements[x.choice].innerHTML);
+				// }
+				elements[obj.choice].innerHTML = '<br>' + game_users[obj.choice].username + show_votes_f(1, elements[obj.choice].innerHTML);
+				elements[obj.choice].innerHTML += "<input type='hidden' value='" + obj.choice + "'>";
+
 			}
 			var were_agree = most_voted(were_choice.map(a => a.choice))
 
-			if (were_choice.length == 1 && were_agree.length == 1) {// if (were_choice.length == werewolves.length && were_agree.length == 1) {
+			if (were_choice.length == 2 && were_agree.length == 1) {// if (were_choice.length == werewolves.length && were_agree.length == 1) {
 				werewolf_overall_choice = were_agree
 				document.getElementById('vote_table').innerHTML = "";
 			}
@@ -320,7 +339,8 @@
 			await sleep(10000)
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
 			await progress("cupid", 15)
-			night()};
+			night()
+		};
 
 		function check_username(obj, name) {
 			for (var i = 0; i < obj.length; i++)
@@ -349,6 +369,13 @@
 		function draw_table(state) {
 			elements = []
 			document.getElementById('vote_table').innerHTML = "";
+			var show_votes = "";
+			if (state == "werewolf") {
+				show_votes += "<br>"
+				for (var num of werewolves) {
+					show_votes += "\u26AA"
+				}
+			}
 			for (var j = 0; j < game_users.length; j++) {
 
 				if (j % 2 == 0) {
@@ -358,7 +385,7 @@
 				}
 				b = document.createElement("td");
 				b.setAttribute("class", "guess")
-				b.innerHTML = '<br>' + game_users[j].username;
+				b.innerHTML = '<br>' + game_users[j].username + show_votes;
 				b.innerHTML += "<input type='hidden' value='" + j + "'>";
 				b.addEventListener("click", async function (e) {
 					// insert the value from the autocomplete text field:
@@ -402,17 +429,22 @@
 		async function night() {
 			document.getElementById('vote_table').innerHTML = "";
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
-			await progress("werewolf", 30)
+			await progress("werewolf", 60)
+			if (werewolf_overall_choice) {
+				document.getElementById('vote_table').innerHTML = "";
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
+				await progress("seer", 15)
 
-			document.getElementById('vote_table').innerHTML = "";
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
-			await progress("seer", 15)
+				document.getElementById('vote_table').innerHTML = "";
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
+				await progress("doctor", 15)
 
-			document.getElementById('vote_table').innerHTML = "";
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
-			await progress("doctor", 15)
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
+			} else {
+				game_over()
+			}
 
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
+
 
 		}
 
@@ -475,15 +507,23 @@
 
 		function game_over() {
 			document.getElementById("game_div_title").innerHTML = "Game Over!"
-			document.getElementById("game_div_body").innerHTML = "<button class='btn btn-secondary' onclick = 'start_game()' id='start_button'>Start</button>"
+			document.getElementById("game_div_body").innerHTML = "";
+			b = document.createElement("button");
+			b.setAttribute("id", "start_button")
+			b.setAttribute("class", "'btn btn-secondary'")
+			b.onclick = function () {
+				start_game()
+			}
+			b.innerHTML = 'Start';
+			document.getElementById("game_div_body").appendChild(b)
 		}
 
 
-
-		// Add Game Over screen
-		// Add case for draw in group vote
-
 		// change all votes criteria and wolf and group vote
+
+		// add vote now button to day
+		// add countdown timer to game start - progress is day turn 
+		// add cupid votes responsive
 	});
 
 
@@ -522,6 +562,10 @@
 		<div class="hand"><span></span></div>
 		<div class="hand"><span></span></div>
 	</div>
+	<div class="face">
+		<h2>by Callum Terry</h2>
+		<p id="lazy">Werewolf</p>  
+	  </div>
 </div>
 
 

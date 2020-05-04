@@ -8,11 +8,11 @@ socketio = SocketIO(app)
 clients = {}
 
 role_dict = {'a': "Werewolf",
-'f': "Werewolf",
-'e': "Doctor",
-'b': "Seer",
+'c': "Werewolf",
+'b': "Doctor",
+'e': "Seer",
 'Prick': "Villager",
-'c': "Cupid",
+'f': "Cupid",
 'Benji': "Villager",
 'Cal': "Villager"}
 
