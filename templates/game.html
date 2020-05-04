@@ -111,18 +111,35 @@
 					var num = votes[i];
 					counts[num] = counts[num] ? counts[num] + 1 : 1;
 				}
-				console.log(counts)
-				socket.emit('remove_player', { 'username': to_be_lynched, 'channel': window.location.pathname.substr(1) });
-				await sleep(5000)
-				if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {
+				var k = "<table>"
+				for (var key in counts) {
+					k += '<tr><td>' + key + '</td><td>' + counts[key] + '</td></tr>'
 
-					document.getElementById("game_div_body").innerHTML = to_be_lynched + " has been lynched!"
-					await sleep(10000)
-					reset()
-					socket.emit('start_new_round', { 'username': 'a', 'channel': window.location.pathname.substr(1) });//game_users[0]
+				}
+				k += '</table>'
 
+				document.getElementById("game_div_body").innerHTML = k;
+
+
+				if (to_be_lynched.length > 1) {
+					// deals with no majority, force another vote
+					await sleep(5000)
+					votes = []
+					document.getElementById("game_div_body").innerHTML = " ";
+					draw_table("day")
 				} else {
-					console.log("Game Over")
+					socket.emit('remove_player', { 'username': to_be_lynched, 'channel': window.location.pathname.substr(1) });
+					await sleep(5000)
+					if (werewolves.length > 1 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
+
+						document.getElementById("game_div_body").innerHTML = to_be_lynched + " has been lynched!"
+						await sleep(10000)
+						reset()
+						socket.emit('start_new_round', { 'username': 'a', 'channel': window.location.pathname.substr(1) });//game_users[0]
+
+					} else {
+						game_over()
+					}
 				}
 			}
 		});
@@ -172,7 +189,7 @@
 				}
 			}
 			var were_agree = most_voted(were_choice.map(a => a.choice))
-			console.log(were_agree + were_choice.length)
+
 			if (were_choice.length == 1 && were_agree.length == 1) {// if (were_choice.length == werewolves.length && were_agree.length == 1) {
 				werewolf_overall_choice = were_agree
 				document.getElementById('vote_table').innerHTML = "";
@@ -293,15 +310,17 @@
 		socket.on('outcome_turn', function () {
 			outcome()
 		});
-		$('#start_button').on('click', async function () {
+		$('#start_button').on('click', start_game);
+
+
+		async function start_game() {
 			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
 			await sleep(10000)
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
 			await sleep(10000)
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
 			await progress("cupid", 15)
-			night()
-		});
+			night()};
 
 		function check_username(obj, name) {
 			for (var i = 0; i < obj.length; i++)
@@ -357,6 +376,7 @@
 						}
 
 					} else if (state == "seer") {
+						document.getElementById("game_div_title").innerHTML = game_users[value].username
 						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[game_users[value].username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
 						document.getElementById('vote_table').innerHTML = "";
 						await sleep(5000)
@@ -424,9 +444,6 @@
 			were_choice = []
 		}
 		async function outcome() {
-			console.log("outcome start")
-			console.log(werewolf_overall_choice)
-			console.log(game_users[werewolf_overall_choice].username)
 			document.getElementById("game_div_title").innerHTML = "Day break!"
 			if (werewolf_overall_choice != doctor_choice) {
 				document.getElementById("game_div_body").innerHTML = game_users[werewolf_overall_choice].username + " was brutally mauled to death last night"
@@ -440,7 +457,7 @@
 			if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'day' });
 			} else {
-				console.log("Game Over")
+				game_over()
 			}
 
 
@@ -456,14 +473,17 @@
 			console.log(game_users);
 		}
 
+		function game_over() {
+			document.getElementById("game_div_title").innerHTML = "Game Over!"
+			document.getElementById("game_div_body").innerHTML = "<button class='btn btn-secondary' onclick = 'start_game()' id='start_button'>Start</button>"
+		}
 
 
-		// change decrement of werewolves, multiple decrements occuring, cant use int.
+
 		// Add Game Over screen
 		// Add case for draw in group vote
-		// show vote tallies after group vote
 
-		// change all votes criteria and wolf
+		// change all votes criteria and wolf and group vote
 	});
 
 
@@ -472,21 +492,21 @@
 </script>
 
 
-	<div class="card" id="online_div">
-		<h2 class="card-title">Online</h2>
-		<div class="card-body">
-			<ul id="online"></ul>
-			<button id="start_button">Start</button>
-		</div>
+<div class="card" id="online_div">
+	<h2 class="card-title">Online</h2>
+	<div class="card-body">
+		<ul id="online"></ul>
+		<button class="btn btn-secondary" id="start_button">Start</button>
 	</div>
+</div>
 
-		<div class="card" id="game_div" style="display: none;">
-			<div class="card-header" id="game_div_title"></div>
+<div class="card" id="game_div" style="display: none;">
+	<div class="card-header" id="game_div_title"></div>
 
-			<div class="card-body" id="game_div_body">
-			</div>
-			<table id="vote_table" class="table"></table>
-		</div>
+	<div class="card-body" id="game_div_body">
+	</div>
+	<table id="vote_table" class="table"></table>
+</div>
 
 
 <div class="timer-group" id="timer" style="display: none;">
