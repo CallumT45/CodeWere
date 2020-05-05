@@ -89,10 +89,10 @@ background: #111;
 
 .face p {
   border-radius: 20px;
-  font-size: 56px;
-  font-weight: 400;
+  font-size: 50px;
+  font-weight: 300;
   position: absolute;
-  top: 17px;
+  top: 25px;
   width: 260px;
   left: 20px;
 }

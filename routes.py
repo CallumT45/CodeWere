@@ -63,12 +63,11 @@ def vote(data):
     elif state == "werewolf":
         emit('were_choice',data, room=room)
 
+@socketio.on("vote_now")
+def vote_now(data):
+    room = data['channel']
+    emit('vote_now', room=room)
 
-
-# @socketio.on("player_remove")
-# def remove_player(data):
-#     room = data['channel']
-#     emit('player_remove',data['player_id'], room=room)
 
 @socketio.on("remove_player")
 def remove_player(data):

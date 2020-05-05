@@ -37,10 +37,10 @@
 		var cupid_votes = [];
 		var doctor_choice = null;
 		var were_choice = [];
-		var elements = []
+		var elements = [];
 		var werewolf_overall_choice = null;
-		var seer_done = false
-		var werewolves = []
+		var seer_done = false;
+		var werewolves = [];
 
 
 		socket.on('connect', () => {
@@ -198,7 +198,6 @@
 				'choice': data['vote']
 			}
 			were_choice.push(obj)
-			console.log(were_choice)
 			if (roles[username] == "Werewolf") {
 				// for (x of were_choice) {
 				// 	elements[x.choice].innerHTML = '<br>' + game_users[x.choice].username + show_votes_f(1, elements[x.choice].innerHTML);
@@ -258,11 +257,35 @@
 
 		});
 
+		function vote_now() {
+			socket.emit('vote_now', { 'channel': window.location.pathname.substr(1) });
+		}
+
+
+
 		socket.on('day_cycle', function () {
+			socket.on('vote_now', function () {
+				clearTimeout(timer);
+				document.getElementById("game_div_title").innerHTML = "Vote";
+				document.getElementById("game_div_body").innerHTML = ""
+				document.getElementById("timer").style.display = "none";
+				if (check_username(game_users, username)) {
+					draw_table("day")
+				}
+			});
 			document.getElementById("game_div_title").innerHTML = "Discuss";
 			document.getElementById("game_div_body").innerHTML = "You have 5 mins to decide who to lynch"
+			b = document.createElement("button");
+			b.setAttribute("id", "vote_now_button")
+			b.setAttribute("class", "'btn btn-secondary'")
+			b.onclick = function () {
+				vote_now();
+			}
+			b.innerHTML = 'Vote Now';
+			document.getElementById("game_div_body").appendChild(b)
 			document.getElementById("timer").style.display = "";
-			setTimeout(function () {
+
+			let timer = setTimeout(function () {
 				document.getElementById("timer").style.display = "none";
 				if (check_username(game_users, username)) {
 					draw_table("day")
@@ -464,16 +487,18 @@
 				} else if (state == "cupid") {
 					flag = (cupid_votes.length == 2)
 				}
+
+
 				await sleep(1000)
 				i++
 			}
 		}
 		function reset() {
-			werewolf_overall_choice = null
-			doctor_choice = null
-			seer_done = false
-			votes = []
-			were_choice = []
+			werewolf_overall_choice = null;
+			doctor_choice = null;
+			seer_done = false;
+			votes = [];
+			were_choice = [];
 		}
 		async function outcome() {
 			document.getElementById("game_div_title").innerHTML = "Day break!"
@@ -521,7 +546,6 @@
 
 		// change all votes criteria and wolf and group vote
 
-		// add vote now button to day
 		// add countdown timer to game start - progress is day turn 
 		// add cupid votes responsive
 	});
@@ -564,8 +588,8 @@
 	</div>
 	<div class="face">
 		<h2>by Callum Terry</h2>
-		<p id="lazy">Werewolf</p>  
-	  </div>
+		<p id="lazy">Werewolf</p>
+	</div>
 </div>
 
 
