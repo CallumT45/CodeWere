@@ -43,6 +43,9 @@
 		var werewolves = [];
 
 
+		const nums = document.querySelectorAll('.nums span');
+		const counter = document.querySelector('.counter');
+
 		socket.on('connect', () => {
 			socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
 		});
@@ -232,13 +235,49 @@
 			werewolves = data['werewolves']
 			game_users = [...users]
 			console.log(data)
+
+
+			runAnimation();
+
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "";
-			document.getElementById("game_div_title").innerHTML = "You are";
-			document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
+			
 
 		});
+
+		function resetDOM() {
+			counter.classList.remove('hide');
+			finalMessage.classList.remove('show');
+
+			nums.forEach(num => {
+				num.classList.value = '';
+			});
+
+			nums[0].classList.add('in');
+		}
+
+		function runAnimation() {
+			// based on https://codepen.io/FlorinPop17/pen/LzYNWa
+			document.getElementById("counter").style.display = "";
+			nums.forEach((num, idx) => {
+				const penultimate = nums.length - 1;
+				num.addEventListener('animationend', (e) => {
+					if (e.animationName === 'goIn' && idx !== penultimate) {
+						num.classList.remove('in');
+						num.classList.add('out');
+					} else if (e.animationName === 'goOut' && num.nextElementSibling) {
+						num.nextElementSibling.classList.add('in');
+					} else {
+						counter.classList.add('hide');
+						document.getElementById("game_div_title").innerHTML = "You are";
+						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
+
+					}
+				});
+			});
+		}
+
 
 		socket.on('show_werewolves', function () {
 			document.getElementById("game_div_title").innerHTML = "Werewolves";
@@ -260,8 +299,6 @@
 		function vote_now() {
 			socket.emit('vote_now', { 'channel': window.location.pathname.substr(1) });
 		}
-
-
 
 		socket.on('day_cycle', function () {
 			socket.on('vote_now', function () {
@@ -545,9 +582,10 @@
 
 
 		// change all votes criteria and wolf and group vote
-
-		// add countdown timer to game start - progress is day turn 
 		// add cupid votes responsive
+		// add hunter class
+		// Add night falls screen
+		// investigate bug on second round where were_overall isnt working with game_users
 	});
 
 
@@ -570,6 +608,17 @@
 	<div class="card-body" id="game_div_body">
 	</div>
 	<table id="vote_table" class="table"></table>
+</div>
+
+
+<div class="counter" id='counter' style="display: none;">
+	<div class="nums">
+		<span class="in">3</span>
+		<span>2</span>
+		<span>1</span>
+		<span>0</span>
+	</div>
+	<h4>Get Ready</h4>
 </div>
 
 
