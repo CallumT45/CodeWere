@@ -21,7 +21,7 @@ werewolves = ['a', 'c']
 def message(data):
     room = data['channel']
     users = data['users'] 
-    ww = Werewolf([index['username'] for index in users])
+    # ww = Werewolf([index['username'] for index in users])
     emit('set_roles',{'role_dict':role_dict, 'werewolves': werewolves}, room=room)
 
 @socketio.on("turn")

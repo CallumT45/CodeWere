@@ -77,8 +77,6 @@
 			}
 		});
 
-
-
 		socket.on('new_user_list', function (data) {
 			if (users.length < data.length) {
 				users = data
@@ -146,7 +144,7 @@
 						day = false;
 						await sleep(5000)
 						reset()
-						socket.emit('start_new_round', { 'username': 'a', 'channel': window.location.pathname.substr(1) });//game_users[0]
+						socket.emit('start_new_round', { 'username': game_users[0], 'channel': window.location.pathname.substr(1) });
 
 					} else {
 						console.log("Game over from a day win")
@@ -186,19 +184,6 @@
 				remove_user(game_users, _username)
 			}
 		});
-
-		function show_votes_f(upOrdown, inner_html) {
-			var output = ""
-			var empty = "\u26AA"
-			var full = "&#128308"
-			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
-			var count_full = werewolves.length - count_empty
-			console.log(count_empty)
-			console.log(count_full)
-			output += full.repeat(count_full) + empty.repeat(count_empty)
-			return '<br>' + output
-
-		}
 
 		socket.on('were_choice', function (data) {
 			for (var i = 0; i < were_choice.length; i++) {
@@ -256,10 +241,6 @@
 
 			runAnimation();
 
-
-
-
-
 		});
 
 		function resetDOM() {
@@ -309,6 +290,19 @@
 			}
 
 		});
+
+		function show_votes_f(upOrdown, inner_html) {
+			var output = ""
+			var empty = "\u26AA"
+			var full = "&#128308"
+			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
+			var count_full = werewolves.length - count_empty
+			console.log(count_empty)
+			console.log(count_full)
+			output += full.repeat(count_full) + empty.repeat(count_empty)
+			return '<br>' + output
+
+		}
 
 		function vote_now() {
 			socket.emit('vote_now', { 'channel': window.location.pathname.substr(1) });
@@ -362,58 +356,22 @@
 		});
 
 		socket.on('cupids_turn', function () {
-			document.getElementById("game_div_title").innerHTML = "Cupid";
-			document.getElementById("game_div").style.display = "";
-			if (roles[username] == "Cupid") {
-				document.getElementById("game_div_body").innerHTML = ""
-				draw_table("cupid")
-
-			} else {
-				document.getElementById("game_div_body").innerHTML = "Cupids arrow is on its way"
-				document.getElementById("vote_table").innerHTML = ""
-			}
+			turn("Cupid", "Cupids arrow is on its way")
 		});
 
 		socket.on('seers_turn', function () {
-			document.getElementById("game_div_title").innerHTML = "Seer";
-			document.getElementById("game_div").style.display = "";
-			if (roles[username] == "Seer" && check_username(game_users, username)) {
-				document.getElementById("game_div_body").innerHTML = ""
-				draw_table("seer")
-
-			} else {
-				document.getElementById("game_div_body").innerHTML = "Seer is peering"
-				document.getElementById("vote_table").innerHTML = ""// removing voting table for all users not seer, this is to stop doctor voting after being timed out
-			}
-
+			turn("Seer", "Seer is peering")
 		});
 
-		socket.on('doctors_turn', function () {
-			document.getElementById("game_div_title").innerHTML = "Doctor";
-			document.getElementById("game_div").style.display = "";
-			if (roles[username] == "Doctor" && check_username(game_users, username)) {
-				document.getElementById("game_div_body").innerHTML = ""
-				draw_table("doctor")
 
-			} else {
-				document.getElementById("game_div_body").innerHTML = "Doctor may be performing a miracle"
-				document.getElementById("vote_table").innerHTML = ""
-			}
+		socket.on('doctors_turn', function () {
+			turn("Doctor", "Doctor may be performing a miracle")
 
 		});
 
 
 		socket.on('werewolves_turn', function () {
-			document.getElementById("game_div_title").innerHTML = "Werewolves";
-			document.getElementById("game_div").style.display = "";
-			if (roles[username] == "Werewolf" && check_username(game_users, username)) {
-				document.getElementById("game_div_body").innerHTML = ""
-				draw_table("werewolf")
-
-			} else {
-				document.getElementById("game_div_body").innerHTML = "Werewolves are choosing their next meal"
-				document.getElementById("vote_table").innerHTML = ""
-			}
+			turn("Werewolf", "Werewolves are choosing their next meal")
 
 		});
 
@@ -434,6 +392,20 @@
 			await progress("cupid", 15)
 			night()
 		};
+
+		function turn(role, body){
+			document.getElementById("game_div_title").innerHTML = role;
+			document.getElementById("game_div").style.display = "";
+			if (roles[username] == role && check_username(game_users, username)) {
+				document.getElementById("game_div_body").innerHTML = ""
+				draw_table(role.toLowerCase())
+
+			} else {
+				document.getElementById("game_div_body").innerHTML = body
+				document.getElementById("vote_table").innerHTML = ""// removing voting table for all users not seer, this is to stop voting after being timed out
+			}
+
+		}
 
 		function check_username(obj, name) {
 			for (var i = 0; i < obj.length; i++)
@@ -643,11 +615,8 @@
 		// change all votes criteria and wolf and group vote
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
 		// investigate bug on second round where were_overall isnt working with game_users
-		// Add game over information
 
-		// start new round on ln 149 needs to be changed
 		// start game should get new roles for each player
-		// turn socket turns into one function with different parameters
 	});
 
 
