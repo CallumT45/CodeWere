@@ -9,12 +9,12 @@ clients = {}
 
 role_dict = {'a': "Werewolf",
 'c': "Werewolf",
-'b': "Doctor",
-'e': "Seer",
-'Prick': "Villager",
-'f': "Cupid",
-'Benji': "Villager",
-'Cal': "Villager"}
+'e': "Doctor",
+'f': "Seer",
+'d': "Cupid",
+'b': "Hunter",}
+
+werewolves = ['a', 'c']
 
 
 @socketio.on("game_start")
@@ -22,27 +22,15 @@ def message(data):
     room = data['channel']
     users = data['users'] 
     ww = Werewolf([index['username'] for index in users])
-    emit('set_roles',{'role_dict':role_dict, 'werewolves': ww.werewolves}, room=room)
+    emit('set_roles',{'role_dict':role_dict, 'werewolves': werewolves}, room=room)
 
 @socketio.on("turn")
 def cupid(data):
     room = data['channel']
     turn = data['turn']
-    if turn == "cupid":
-        emit('cupids_turn', room=room)
-    elif turn == "seer":
-        emit('seers_turn', room=room)
-    elif turn == "doctor":
-        emit('doctors_turn', room=room)
-    elif turn == "werewolf":
-        emit('werewolves_turn', room=room)
-    elif turn == "outcome":
-        emit('outcome_turn', room=room)
-    elif turn == "day":
-        emit('day_cycle', room=room)
-    elif turn == "show_werewolves":
-        emit('show_werewolves', room=room)
-        
+    ref = {"cupid":"cupids_turn","seer":"seers_turn", "doctor": "doctors_turn", "werewolf":"werewolves_turn","outcome":"outcome_turn","day":"day_cycle","show_werewolves":"show_werewolves"}
+    emit(ref[turn], room=room)
+         
     
 
 @socketio.on("start_new_round")
@@ -54,14 +42,12 @@ def new_round(data):
 def vote(data):
     room = data['channel']
     state = data["state"]
-    if state == "group":
-        emit('group_vote',data['vote'], room=room)
-    elif state == "cupid":
-        emit('cupid_vote',data['vote'], room=room)
-    elif state == "doctor":
-        emit('doctor_choice',data['vote'], room=room)
-    elif state == "werewolf":
+    ref = {"group":"group_vote","cupid":"cupid_vote","doctor":"doctor_choice","hunter":"hunter_choice"}
+    if state == "werewolf":
         emit('were_choice',data, room=room)
+    else:
+        emit(ref[state],data['vote'], room=room)
+
 
 @socketio.on("vote_now")
 def vote_now(data):

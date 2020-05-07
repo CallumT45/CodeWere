@@ -11,25 +11,25 @@
 
 		var socket = io.connect('http://127.0.0.1:5000');
 
-		var users = [{
-			'username': "George",
-			'id': 1
-		}, {
-			'username': "Herd",
-			'id': 2
-		}, {
-			'username': "Yop",
-			'id': 3
-		}, {
-			'username': "Cal",
-			'id': 4
-		}, {
-			'username': "Benji",
-			'id': 5
-		}, {
-			'username': "Prick",
-			'id': 6
-		}];
+		var users = [];
+		// 	'username': "George",
+		// 	'id': 1
+		// }, {
+		// 	'username': "Herd",
+		// 	'id': 2
+		// }, {
+		// 	'username': "Yop",
+		// 	'id': 3
+		// }, {
+		// 	'username': "Cal",
+		// 	'id': 4
+		// }, {
+		// 	'username': "Benji",
+		// 	'id': 5
+		// }, {
+		// 	'username': "Prick",
+		// 	'id': 6
+		// }];
 
 		var votes = [];
 		var roles = [];
@@ -41,6 +41,7 @@
 		var werewolf_overall_choice = null;
 		var seer_done = false;
 		var werewolves = [];
+		var day = false;
 
 
 		const nums = document.querySelectorAll('.nums span');
@@ -106,7 +107,7 @@
 			// last event of game loop, if conditions are met after this function, re start the game loop
 			votes.push(vote)
 			console.log(votes)
-			if (votes.length == 3) {// game_users.length
+			if (votes.length == game_users.length) {
 				var to_be_lynched = most_voted(votes)
 				var counts = {};
 
@@ -127,20 +128,28 @@
 				if (to_be_lynched.length > 1) {
 					// deals with no majority, force another vote
 					await sleep(5000)
+					document.getElementById("game_div_body").innerHTML = "";
 					votes = []
-					document.getElementById("game_div_body").innerHTML = " ";
-					draw_table("day")
+					if (check_username(game_users, username)) {
+						draw_table("day")
+					}
 				} else {
 					socket.emit('remove_player', { 'username': to_be_lynched, 'channel': window.location.pathname.substr(1) });
 					await sleep(5000)
-					if (werewolves.length > 1 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
-
-						document.getElementById("game_div_body").innerHTML = to_be_lynched + " has been lynched!"
-						await sleep(10000)
+					document.getElementById("game_div_body").innerHTML = "";
+					if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
+						document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
+						document.getElementById("game_div_body").innerHTML += to_be_lynched + " has been lynched!"
+						await sleep(8000)
+						document.getElementById("game_div_title").innerHTML = "Night Falls"
+						document.getElementById("game_div_body").innerHTML = ""
+						day = false;
+						await sleep(5000)
 						reset()
 						socket.emit('start_new_round', { 'username': 'a', 'channel': window.location.pathname.substr(1) });//game_users[0]
 
 					} else {
+						console.log("Game over from a day win")
 						game_over()
 					}
 				}
@@ -151,9 +160,14 @@
 			// first check if the removed player was a werewolf, if so, decrement number of werewolves
 			// then check to see if the removed user was under cupids influence, if so remove both
 			console.log(_username + " was a " + roles[_username])
+			console.log(game_users[werewolf_overall_choice].username)
 			if (roles[_username] == "Werewolf") {
-				console.log(_username + " was a werewolf")
+				console.log("removing a werewolf")
 				remove_user(werewolves, _username)
+			} else if (roles[_username] == "Hunter" && _username == username && day) {// if the killed person is a hunter and the client is the hunter
+				draw_table("hunter")
+
+
 			}
 			if (cupid_votes.includes(_username)) {
 				if (cupid_votes[0] == _username) {
@@ -165,7 +179,7 @@
 				document.getElementById("game_div_body").innerHTML = "Overcome with grief by the loss of " + _username + ", " + cupid_votes[0] + " killed themself!"
 				remove_user(game_users, _username)
 				if (roles[cupid_votes[0]] == "Werewolf") {
-					remove_user(werewolves, _username)
+					remove_user(werewolves, cupid_votes[0])
 				}
 				remove_user(game_users, cupid_votes[0])
 			} else {
@@ -202,16 +216,13 @@
 			}
 			were_choice.push(obj)
 			if (roles[username] == "Werewolf") {
-				// for (x of were_choice) {
-				// 	elements[x.choice].innerHTML = '<br>' + game_users[x.choice].username + show_votes_f(1, elements[x.choice].innerHTML);
-				// }
 				elements[obj.choice].innerHTML = '<br>' + game_users[obj.choice].username + show_votes_f(1, elements[obj.choice].innerHTML);
 				elements[obj.choice].innerHTML += "<input type='hidden' value='" + obj.choice + "'>";
 
 			}
 			var were_agree = most_voted(were_choice.map(a => a.choice))
 
-			if (were_choice.length == 2 && were_agree.length == 1) {// if (were_choice.length == werewolves.length && were_agree.length == 1) {
+			if (were_choice.length == werewolves.length && were_agree.length == 1) {
 				werewolf_overall_choice = were_agree
 				document.getElementById('vote_table').innerHTML = "";
 			}
@@ -231,25 +242,27 @@
 		});
 
 		socket.on('set_roles', function (data) {
+			// This is the first function called in a game so does more than just sets roles. All displays the countdown and resets all tracker values
+			reset()
 			roles = data['role_dict']
 			werewolves = data['werewolves']
 			game_users = [...users]
 			console.log(data)
 
+			document.getElementById('vote_table').innerHTML = "";
+			document.getElementById("online_div").style.display = "none";
+			document.getElementById("game_div").style.display = "none";
+
 
 			runAnimation();
 
-			document.getElementById('vote_table').innerHTML = "";
-			document.getElementById("online_div").style.display = "none";
-			document.getElementById("game_div").style.display = "";
-			
+
+
+
 
 		});
 
 		function resetDOM() {
-			counter.classList.remove('hide');
-			finalMessage.classList.remove('show');
-
 			nums.forEach(num => {
 				num.classList.value = '';
 			});
@@ -269,10 +282,11 @@
 					} else if (e.animationName === 'goOut' && num.nextElementSibling) {
 						num.nextElementSibling.classList.add('in');
 					} else {
-						counter.classList.add('hide');
+						document.getElementById("counter").style.display = "none";
+						document.getElementById("game_div").style.display = "";
 						document.getElementById("game_div_title").innerHTML = "You are";
 						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
-
+						resetDOM()
 					}
 				});
 			});
@@ -285,7 +299,7 @@
 			if (roles[username] == "Werewolf") {
 				var k = '<div class="row">'
 				for (werewolf of werewolves) {
-					k += '<div class="card" style="width: 18rem;"><img src="static/images/werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
+					k += '<div class="card" style="width: 18rem;"><img src="static/images/Werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
 				}
 				k += '</div>'
 				document.getElementById("game_div_body").innerHTML = k;
@@ -303,6 +317,7 @@
 		socket.on('day_cycle', function () {
 			socket.on('vote_now', function () {
 				clearTimeout(timer);
+				document.getElementById("vote_table").innerHTML = ""
 				document.getElementById("game_div_title").innerHTML = "Vote";
 				document.getElementById("game_div_body").innerHTML = ""
 				document.getElementById("timer").style.display = "none";
@@ -310,8 +325,10 @@
 					draw_table("day")
 				}
 			});
+			day = true;
+			document.getElementById("vote_table").innerHTML = ""
 			document.getElementById("game_div_title").innerHTML = "Discuss";
-			document.getElementById("game_div_body").innerHTML = "You have 5 mins to decide who to lynch"
+			document.getElementById("game_div_body").innerHTML = "<p>You have 5 mins to decide who to lynch</p><br>"
 			b = document.createElement("button");
 			b.setAttribute("id", "vote_now_button")
 			b.setAttribute("class", "'btn btn-secondary'")
@@ -323,7 +340,9 @@
 			document.getElementById("timer").style.display = "";
 
 			let timer = setTimeout(function () {
+				document.getElementById("game_div_title").innerHTML = "Vote";
 				document.getElementById("timer").style.display = "none";
+				document.getElementById("game_div_body").innerHTML = "";
 				if (check_username(game_users, username)) {
 					draw_table("day")
 				}
@@ -334,6 +353,14 @@
 		});
 
 
+		socket.on('hunter_choice', async function (vote) {
+			console.log(game_users[vote])
+			document.getElementById("game_div_body").innerHTML += "<br>Cornered the hunter fires off an arrow, it strikes " + game_users[vote].username + " killing them!<br>"
+			socket.emit('remove_player', { 'username': game_users[vote].username, 'channel': window.location.pathname.substr(1) });
+			console.log("sleeping")
+			await sleep(10000)
+		});
+
 		socket.on('cupids_turn', function () {
 			document.getElementById("game_div_title").innerHTML = "Cupid";
 			document.getElementById("game_div").style.display = "";
@@ -343,6 +370,7 @@
 
 			} else {
 				document.getElementById("game_div_body").innerHTML = "Cupids arrow is on its way"
+				document.getElementById("vote_table").innerHTML = ""
 			}
 		});
 
@@ -355,6 +383,7 @@
 
 			} else {
 				document.getElementById("game_div_body").innerHTML = "Seer is peering"
+				document.getElementById("vote_table").innerHTML = ""// removing voting table for all users not seer, this is to stop doctor voting after being timed out
 			}
 
 		});
@@ -368,6 +397,7 @@
 
 			} else {
 				document.getElementById("game_div_body").innerHTML = "Doctor may be performing a miracle"
+				document.getElementById("vote_table").innerHTML = ""
 			}
 
 		});
@@ -382,6 +412,7 @@
 
 			} else {
 				document.getElementById("game_div_body").innerHTML = "Werewolves are choosing their next meal"
+				document.getElementById("vote_table").innerHTML = ""
 			}
 
 		});
@@ -389,10 +420,12 @@
 		socket.on('outcome_turn', function () {
 			outcome()
 		});
+
+
 		$('#start_button').on('click', start_game);
 
-
 		async function start_game() {
+			cupid_votes = [] // only needs to be reset on new game not new round
 			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
 			await sleep(10000)
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
@@ -457,7 +490,7 @@
 
 					} else if (state == "cupid") {
 						socket.emit('vote', { 'vote': game_users[value].username, 'channel': window.location.pathname.substr(1), "state": state });
-						console.log(cupid_votes)
+						elements[value].style.backgroundColor = '#f542dd';
 						if (cupid_votes.length == 1) {// want to to close when length is 2, so close when this is 1, then the second vote is added
 							document.getElementById('vote_table').innerHTML = "";
 						}
@@ -472,6 +505,12 @@
 					} else if (state == "doctor") {
 						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state });
 						document.getElementById('vote_table').innerHTML = "";
+					}
+					else if (state == "hunter") {
+						if (roles[game_users[value]] != "Hunter") {
+							socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state });
+							document.getElementById('vote_table').innerHTML = "";
+						}
 
 					} else if (state == "werewolf") {
 						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state, 'username': username });
@@ -482,30 +521,37 @@
 				elements.push(b)
 				document.getElementById('row' + Math.floor(j / 2).toString()).appendChild(b);
 
-
 			}
 		}
 
+		var test = false;
 		async function night() {
-			document.getElementById('vote_table').innerHTML = "";
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
-			await progress("werewolf", 60)
-			if (werewolf_overall_choice) {
+			if (!test) {
+				test = true;
+				werewolf_overall_choice = null;
 				document.getElementById('vote_table').innerHTML = "";
-				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
-				await progress("seer", 15)
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
+				console.log(werewolf_overall_choice)
+				console.log(username + " running night function")
+				await progress("werewolf", 60)
+				if (werewolf_overall_choice) {
+					document.getElementById('vote_table').innerHTML = "";
+					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
+					await progress("seer", 5)
 
-				document.getElementById('vote_table').innerHTML = "";
-				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
-				await progress("doctor", 15)
+					document.getElementById('vote_table').innerHTML = "";
+					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
+					await progress("doctor", 5)
 
-				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
-			} else {
-				game_over()
+					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
+				} else {
+					console.log("Game over from werewolves not voting")
+					game_over()
+
+				}
+				test = false;
+
 			}
-
-
-
 		}
 
 		function sleep(ms) {
@@ -530,6 +576,8 @@
 				i++
 			}
 		}
+
+
 		function reset() {
 			werewolf_overall_choice = null;
 			doctor_choice = null;
@@ -551,25 +599,36 @@
 			if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'day' });
 			} else {
+				console.log("Game over from a night win")
 				game_over()
 			}
 
 
 		}
 
-		function remove_user(obj, username) {
+		function remove_user(obj, _username) {
+			console.log(obj)
 			for (var i = 0; i < obj.length; i++) {
-				if (obj[i].username == username) {
+				if (obj[i].username == _username) {
+					obj.splice(i, 1);
+				}
+				if (obj[i] == _username) {
 					obj.splice(i, 1);
 				}
 			}
-			console.log("Remove user: " + username)
-			console.log(game_users);
+			console.log("Remove user: " + _username)
+			console.log(werewolves);
 		}
 
 		function game_over() {
+			console.log(game_users)
 			document.getElementById("game_div_title").innerHTML = "Game Over!"
-			document.getElementById("game_div_body").innerHTML = "";
+			if (werewolves.length < 1) {
+				document.getElementById("game_div_body").innerHTML = "Congrats, all werewolves eliminated<br>";
+			} else {
+				document.getElementById("game_div_body").innerHTML = "The werewolves have taken over<br>";
+			}
+			// document.getElementById("game_div_body").innerHTML = "";
 			b = document.createElement("button");
 			b.setAttribute("id", "start_button")
 			b.setAttribute("class", "'btn btn-secondary'")
@@ -582,10 +641,13 @@
 
 
 		// change all votes criteria and wolf and group vote
-		// add cupid votes responsive
-		// add hunter class
-		// Add night falls screen
+		// fix hunter timing, what happens if hunter doesnt vote for anyone
 		// investigate bug on second round where were_overall isnt working with game_users
+		// Add game over information
+
+		// start new round on ln 149 needs to be changed
+		// start game should get new roles for each player
+		// turn socket turns into one function with different parameters
 	});
 
 
@@ -636,8 +698,7 @@
 		<div class="hand"><span></span></div>
 	</div>
 	<div class="face">
-		<h2>by Callum Terry</h2>
-		<p id="lazy">Werewolf</p>
+		<h1>Werewolf</h1>
 	</div>
 </div>
 
