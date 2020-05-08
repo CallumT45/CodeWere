@@ -1,6 +1,8 @@
 {% extends "layout.html" %} {% block content %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="static/background.js"></script>
+<link rel="stylesheet" href="static/background.css">
 
 <script type="text/javascript">
 	$(document).ready(function () {
@@ -138,13 +140,14 @@
 					if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
 						document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
 						document.getElementById("game_div_body").innerHTML += to_be_lynched + " has been lynched!"
-						await sleep(8000)
+						await sleep(3000)
+						sunset()
 						document.getElementById("game_div_title").innerHTML = "Night Falls"
 						document.getElementById("game_div_body").innerHTML = ""
 						day = false;
-						await sleep(5000)
+						await sleep(4000)
 						reset()
-						socket.emit('start_new_round', { 'username': game_users[0], 'channel': window.location.pathname.substr(1) });
+						socket.emit('start_new_round', { 'username': game_users[0].username, 'channel': window.location.pathname.substr(1) });
 
 					} else {
 						console.log("Game over from a day win")
@@ -233,7 +236,7 @@
 			werewolves = data['werewolves']
 			game_users = [...users]
 			console.log(data)
-
+			sunset()
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "none";
@@ -376,6 +379,7 @@
 		});
 
 		socket.on('outcome_turn', function () {
+			sunrise()
 			outcome()
 		});
 
@@ -393,7 +397,7 @@
 			night()
 		};
 
-		function turn(role, body){
+		function turn(role, body) {
 			document.getElementById("game_div_title").innerHTML = role;
 			document.getElementById("game_div").style.display = "";
 			if (roles[username] == role && check_username(game_users, username)) {
@@ -496,10 +500,10 @@
 			}
 		}
 
-		var test = false;
+		var lock = false;
 		async function night() {
-			if (!test) {
-				test = true;
+			if (!lock) {
+				lock = true;
 				werewolf_overall_choice = null;
 				document.getElementById('vote_table').innerHTML = "";
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
@@ -521,7 +525,7 @@
 					game_over()
 
 				}
-				test = false;
+				lock = false;
 
 			}
 		}
@@ -625,7 +629,7 @@
 </script>
 
 
-<div class="card" id="online_div">
+<div class="card" id="online_div" style="z-index: 10000;">
 	<h2 class="card-title">Online</h2>
 	<div class="card-body">
 		<ul id="online"></ul>
@@ -633,42 +637,112 @@
 	</div>
 </div>
 
-<div class="card" id="game_div" style="display: none;">
-	<div class="card-header" id="game_div_title"></div>
-
-	<div class="card-body" id="game_div_body">
+ <div id='background'><!--style="display: none;"> -->
+	<div id="starsContainer">
+		<div id="stars">
+		</div>
 	</div>
-	<table id="vote_table" class="table"></table>
+
+	<div id="sun">
+
+	</div>
+
+	<div id="sunDay">
+
+	</div>
+
+	<div id="sunSet">
+
+	</div>
+
+	<div id="sky">
+
+	</div>
+
+	<div class="star" style="left: 250px; top: 30px;"></div>
+	<div class="star" style="left: 300px; top: 25px;"></div>
+	<div class="star" style="right: 40px; top: 40px;"></div>
+	<div class="star" style="right: 80px; top: 45px;"></div>
+	<div class="star" style="right: 120px; top: 20px;"></div>
+
+	<div id="horizon"></div>
+
+	<div id="horizonNight"></div>
+
+	<div id="moon"></div>
+
+	<div id="mountainRange">
+		<div id="mountain">
+		</div>
+
+	</div>
+
+	<div id="division">
+
+	</div>
+
+	<div id="water"></div>
+
+	<div id="waterReflectionContainer">
+		<div id="waterReflectionMiddle">
+
+		</div>
+	</div>
+	<div id="waterDistance"></div>
+	<div id="darknessOverlaySky"></div>
+	<div id="darknessOverlay"></div>
+	<div id="oceanRippleContainer">
+	</div>
+	<div id="oceanRipple"></div>
+
 </div>
 
 
-<div class="counter" id='counter' style="display: none;">
-	<div class="nums">
-		<span class="in">3</span>
-		<span>2</span>
-		<span>1</span>
-		<span>0</span>
-	</div>
-	<h4>Get Ready</h4>
-</div>
 
 
-<div class="timer-group" id="timer" style="display: none;">
-	<div class="timer hour">
-		<div class="hand"><span></span></div>
-		<div class="hand"><span></span></div>
+
+
+
+
+<div id="game">
+	<div class="card" id="game_div" style="z-index: 10000;">
+		<div class="card-header" id="game_div_title"></div>
+
+		<div class="card-body" id="game_div_body">
+		</div>
+		<table id="vote_table" class="table"></table>
 	</div>
-	<div class="timer minute">
-		<div class="hand"><span></span></div>
-		<div class="hand"><span></span></div>
+
+
+	<div class="counter" id='counter' style="display: none;">
+		<div class="nums">
+			<span class="in">3</span>
+			<span>2</span>
+			<span>1</span>
+			<span>0</span>
+		</div>
+		<h4>Get Ready</h4>
 	</div>
-	<div class="timer second">
-		<div class="hand"><span></span></div>
-		<div class="hand"><span></span></div>
+
+
+	<div class="timer-group" id="timer" style="display: none;">
+		<div class="timer hour">
+			<div class="hand"><span></span></div>
+			<div class="hand"><span></span></div>
+		</div>
+		<div class="timer minute">
+			<div class="hand"><span></span></div>
+			<div class="hand"><span></span></div>
+		</div>
+		<div class="timer second">
+			<div class="hand"><span></span></div>
+			<div class="hand"><span></span></div>
+		</div>
+		<div class="face">
+			<h1>Werewolf</h1>
+		</div>
 	</div>
-	<div class="face">
-		<h1>Werewolf</h1>
-	</div>
+
 </div>
 
 
