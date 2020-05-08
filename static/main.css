@@ -3,18 +3,16 @@
   text-align: center;
 }
 
-td{
+#vote_table td{
   width: 10%;
   height: 70px;
   font-weight: bolder;
-  vertical-align: middle;
-
-  
+  vertical-align: middle; 
 }
 
-td:hover {background-color: #f5f5f5;}
+#vote_table td:hover {background-color: #f5f5f5;}
 
-/* Countdown from https://codepen.io/ninjascribble/pen/rHwkK */
+
 @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
 
 .card{
@@ -24,6 +22,9 @@ td:hover {background-color: #f5f5f5;}
     margin-right:auto;
 }
 
+.collapse .card{
+  margin-top: 50px;
+}
 
 body {
     color: rgb(119, 119, 119);
@@ -37,10 +38,14 @@ body {
   font-size: xx-large;
 }
 
+#init{
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
 
-
+/* Countdown from https://codepen.io/ninjascribble/pen/rHwkK */
 .timer-group {
-/* background: #111; */
   height: 400px;
   margin: 0 auto;
   position: relative;

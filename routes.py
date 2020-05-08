@@ -7,22 +7,22 @@ socketio = SocketIO(app)
 
 clients = {}
 
-role_dict = {'a': "Werewolf",
-'c': "Werewolf",
-'e': "Doctor",
-'f': "Seer",
-'d': "Cupid",
-'b': "Hunter",}
+# role_dict = {'a': "Werewolf",
+# 'c': "Werewolf",
+# 'e': "Doctor",
+# 'f': "Seer",
+# 'd': "Cupid",
+# 'b': "Hunter",}
 
-werewolves = ['a', 'c']
+# werewolves = ['a', 'c']
 
 
 @socketio.on("game_start")
 def message(data):
     room = data['channel']
     users = data['users'] 
-    # ww = Werewolf([index['username'] for index in users])
-    emit('set_roles',{'role_dict':role_dict, 'werewolves': werewolves}, room=room)
+    ww = Werewolf([index['username'] for index in users])
+    emit('set_roles',{'role_dict':ww.role_dict, 'werewolves': ww.werewolves}, room=room)
 
 @socketio.on("turn")
 def cupid(data):

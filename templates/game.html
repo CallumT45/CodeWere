@@ -48,7 +48,7 @@
 
 		const nums = document.querySelectorAll('.nums span');
 		const counter = document.querySelector('.counter');
-
+		document.getElementById("game_div").style.display = "none";
 		socket.on('connect', () => {
 			socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
 		});
@@ -75,7 +75,7 @@
 			}
 			$("#online").empty();
 			for (var i = 0; i < users.length; i++) {
-				$("#online").append('<li>' + users[i].username + '</li>');
+				$("#online").append('<li class="list-group-item">' + users[i].username + '</li>');
 			}
 		});
 
@@ -85,7 +85,7 @@
 			}
 			$("#online").empty();
 			for (var i = 0; i < users.length; i++) {
-				$("#online").append('<li>' + users[i].username + '</li>');
+				$("#online").append('<li class="list-group-item">' + users[i].username + '</li>');
 			}
 		});
 
@@ -167,8 +167,6 @@
 				remove_user(werewolves, _username)
 			} else if (roles[_username] == "Hunter" && _username == username && day) {// if the killed person is a hunter and the client is the hunter
 				draw_table("hunter")
-
-
 			}
 			if (cupid_votes.includes(_username)) {
 				if (cupid_votes[0] == _username) {
@@ -240,8 +238,6 @@
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "none";
-
-
 			runAnimation();
 
 		});
@@ -294,22 +290,6 @@
 
 		});
 
-		function show_votes_f(upOrdown, inner_html) {
-			var output = ""
-			var empty = "\u26AA"
-			var full = "&#128308"
-			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
-			var count_full = werewolves.length - count_empty
-			console.log(count_empty)
-			console.log(count_full)
-			output += full.repeat(count_full) + empty.repeat(count_empty)
-			return '<br>' + output
-
-		}
-
-		function vote_now() {
-			socket.emit('vote_now', { 'channel': window.location.pathname.substr(1) });
-		}
 
 		socket.on('day_cycle', function () {
 			socket.on('vote_now', function () {
@@ -343,7 +323,7 @@
 				if (check_username(game_users, username)) {
 					draw_table("day")
 				}
-			}, 25000)
+			}, 300000)
 
 
 
@@ -387,6 +367,7 @@
 		$('#start_button').on('click', start_game);
 
 		async function start_game() {
+			if (users.length >= 6){
 			cupid_votes = [] // only needs to be reset on new game not new round
 			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
 			await sleep(10000)
@@ -395,6 +376,9 @@
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
 			await progress("cupid", 15)
 			night()
+			}else{
+				alert("Game Requires 6 or more people!")
+			}
 		};
 
 		function turn(role, body) {
@@ -409,6 +393,23 @@
 				document.getElementById("vote_table").innerHTML = ""// removing voting table for all users not seer, this is to stop voting after being timed out
 			}
 
+		}
+
+		function show_votes_f(upOrdown, inner_html) {
+			var output = ""
+			var empty = "\u26AA"
+			var full = "&#128308"
+			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
+			var count_full = werewolves.length - count_empty
+			console.log(count_empty)
+			console.log(count_full)
+			output += full.repeat(count_full) + empty.repeat(count_empty)
+			return '<br>' + output
+
+		}
+
+		function vote_now() {
+			socket.emit('vote_now', { 'channel': window.location.pathname.substr(1) });
 		}
 
 		function check_username(obj, name) {
@@ -632,10 +633,12 @@
 <div class="card" id="online_div" style="z-index: 10000;">
 	<h2 class="card-title">Online</h2>
 	<div class="card-body">
-		<ul id="online"></ul>
+		<ul class="list-group" id="online"></ul>
 		<button class="btn btn-secondary" id="start_button">Start</button>
 	</div>
 </div>
+
+
 
  <div id='background'><!--style="display: none;"> -->
 	<div id="starsContainer">

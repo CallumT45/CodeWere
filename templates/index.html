@@ -7,21 +7,131 @@
 
 
 		$('#button').on('click', function () {
-			if ($('#myMessage').val().length < 15) {
-				localStorage.setItem('username', $('#myMessage').val());
-				$('#myMessage').val('');
+			if ($('#username').val().length <= 15 && 1 <= $('#username').val().length) {
+				localStorage.setItem('username', $('#username').val());
+				$('#username').val('');
 				window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/werewolf');
 			} else {
-				alert("Username must be fewer than 15 characters")
-				$('#myMessage').val('');
+				alert("Username must be between 1 and 15 characters")
+				$('#username').val('');
 			}
 		});
 
 	});
 </script>
 
-<input type="text" id="myMessage">
-<button id="button" class="btn btn-secondary">Username</button>
+
+
+
+<section class="jumbotron text-center">
+	<div class="container">
+		<h1>Werewolf</h1>
+		<p>A basic web app developed by Callum Terry.</p>
+	</div>
+</section>
+
+<div id="init">
+	<p>Play Werewolf online across multiple devices. To create a new game or join an existing game,
+		enter a game identifier and click 'GO'.</p>
+	<input type="text" id="route" data-lpignore="true" maxlength="15"><br>
+	<input type="text" id="username" data-lpignore="true" maxlength="15">
+	
+	<p>
+		<button class="btn btn-success" type="button" data-toggle="collapse" data-target="#HTP" aria-expanded="false"
+			aria-controls="HTP" style="margin-right: 30px;margin-top: 10px;">How to Play</button>
+		<button class="btn btn-success" type="button" data-toggle="collapse" data-target="#roles" aria-expanded="false"
+			aria-controls="roles" style="margin-right: 30px; margin-top: 10px;">Roles</button>
+			<button id="button" class="btn btn-secondary">GO</button>
+	</p>
+</div>
+<div class="collapse" id="HTP">
+	<div class="card card-body">
+		Each player takes on the role of a Villager, a Werewolf, or a special character.
+		It's your job to figure out who the Werewolves are and to kill them all in order to win... unless you’ve
+		become a Werewolf yourself.
+		<br>
+		The game will proceed in an alternating day and night cycle, beginning with night-time. The roles will be
+		called during the night and
+		during the day you must discuss the outcome of the previous night, then vote on who to lynch.
+		There are no restrictions on speech. Any living player can say anything they want -- truth, misdirection,
+		nonsense, or a barefaced lie.
+		Dead players may not speak at all.
+	</div>
+</div>
+<div class="collapse" id="roles">
+	<div class="row">
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Werewolf</h3><img src="static/images/Werewolf.png" class="card-img-top"
+				alt="werewolf">
+			<div class="card-body">Typically werewolves are outnumbered by villagers 2 to 1. So a game of 6 players
+				would have 2 werewolves.
+				The goal of the werewolves is to decide together on one villager to secretly kill off during the
+				night,
+				while posing as villagers during the day so they're not killed off themselves. One by one they'll
+				kill
+				off villagers and win when there are either the same number of villagers and werewolves left, or all
+				the
+				villagers have died.
+				This role is the hardest of all to maintain, because these players are lying for the duration of the
+				game. </div>
+		</div>
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Villager</h3><img src="static/images/Villager.png" class="card-img-top"
+				alt="villager">
+			<div class="card-body">The most commonplace role, a simple Villager, spends the game trying to root out
+				who
+				they believe the werewolves (and other villagers) are. While they do not need to lie, the role
+				requires
+				players to keenly sense and point out the flaws or mistakes of their fellow players. Someone is
+				speaking
+				too much? Could mean they're a werewolf. Someone isn't speaking enough? Could mean the same thing.
+				It
+				all depends on the people you're playing with, and how well you know them. </div>
+		</div>
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Seer</h3><img src="static/images/Seer.png" class="card-img-top" alt="seer">
+			<div class="card-body">
+				The Seer, while first and foremost a villager, has the added ability to
+				see one of their fellow players role each night.
+				The Seer can then choose to keep this information a secret during the day, or reveal
+				themselves as the Seer and use the knowledge they gained during the night in their defence
+				or to their advantage during the day. The strategy here is up to you. </div>
+		</div>
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Doctor</h3><img src="static/images/Doctor.png" class="card-img-top" alt="doctor">
+			<div class="card-body">Also a villager, the Doctor has the ability to heal themselves or another
+				villager when called awake during the night. Should they heal themselves, then will
+				be safe from being killed by the werewolves, or should they want to prove themselves the Doctor or
+				fear the death of a fellow villager, can opt to heal them instead. Again, the strategy here is up to
+				you. </div>
+		</div>
+		<!-- </div> -->
+
+		<!-- <div class="row"> -->
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Cupid</h3><img src="static/images/Cupid.png" class="card-img-top" alt="cupid">
+			<div class="card-body">Cupid does not actually count as a special role, but they are aligned with the
+				Villagers. The Cupid is awoken on the first day only. They then
+				pick 2 players to be lovers. These 2 players are then awoken and see each other. For the rest of the
+				game, if one lover dies, so does the other. After the first night, the
+				Cupid plays the remainder of the game as a normal Villager. </div>
+		</div>
+		<div class="card" style="width: 25rem;">
+			<h3 class="card-title">Hunter</h3><img src="static/images/Hunter.png" class="card-img-top" alt="hunter">
+			<div class="card-body">The Hunter is a villager, who when killed (during the day) takes their bow and
+				arrow, and kills one other person with their dying breath. The target must be chosen quickly and
+				without intervention from the rest of the village. Any protection the target may have received
+				during the night phase no longer applies, and the target will be killed regardless of any other
+				factors. </div>
+		</div>
+
+	</div>
+
+
+</div>
+
+
+
 
 
 {% endblock content %}
