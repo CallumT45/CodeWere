@@ -10,7 +10,7 @@
 			if ($('#username').val().length <= 15 && 1 <= $('#username').val().length) {
 				localStorage.setItem('username', $('#username').val());
 				$('#username').val('');
-				window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/werewolf');
+				window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/werewolf/'+ $('#route').val());
 			} else {
 				alert("Username must be between 1 and 15 characters")
 				$('#username').val('');

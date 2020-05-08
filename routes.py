@@ -1,20 +1,23 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, emit
 from werewolves import Werewolf
+import urllib.request, string, random
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
 socketio = SocketIO(app)
 
 clients = {}
 
-# role_dict = {'a': "Werewolf",
-# 'c': "Werewolf",
-# 'e': "Doctor",
-# 'f': "Seer",
-# 'd': "Cupid",
-# 'b': "Hunter",}
 
-# werewolves = ['a', 'c']
+
+word_url = "http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain"
+response = urllib.request.urlopen(word_url)
+long_txt = response.read().decode()
+words = long_txt.splitlines()
+
+clean_words = [word for word in words if (3 <= len(word) <= 6) and (not "\'" in word)]
+
+
 
 
 @socketio.on("game_start")
@@ -31,7 +34,6 @@ def cupid(data):
     ref = {"cupid":"cupids_turn","seer":"seers_turn", "doctor": "doctors_turn", "werewolf":"werewolves_turn","outcome":"outcome_turn","day":"day_cycle","show_werewolves":"show_werewolves"}
     emit(ref[turn], room=room)
          
-    
 
 @socketio.on("start_new_round")
 def new_round(data):
@@ -91,8 +93,8 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/werewolf')
-def chat():
+@app.route('/werewolf/<game>')
+def chat(game):
     return render_template('game.html')
 
 if __name__ == '__main__':

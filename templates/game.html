@@ -1,8 +1,8 @@
 {% extends "layout.html" %} {% block content %}
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-<script src="static/background.js"></script>
-<link rel="stylesheet" href="static/background.css">
+<script src="{{ url_for('static', filename='background.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='background.css') }}">
 
 <script type="text/javascript">
 	$(document).ready(function () {
@@ -14,25 +14,6 @@
 		var socket = io.connect('http://127.0.0.1:5000');
 
 		var users = [];
-		// 	'username': "George",
-		// 	'id': 1
-		// }, {
-		// 	'username': "Herd",
-		// 	'id': 2
-		// }, {
-		// 	'username': "Yop",
-		// 	'id': 3
-		// }, {
-		// 	'username': "Cal",
-		// 	'id': 4
-		// }, {
-		// 	'username': "Benji",
-		// 	'id': 5
-		// }, {
-		// 	'username': "Prick",
-		// 	'id': 6
-		// }];
-
 		var votes = [];
 		var roles = [];
 		var game_users = [];
@@ -45,10 +26,10 @@
 		var werewolves = [];
 		var day = false;
 
-
 		const nums = document.querySelectorAll('.nums span');
 		const counter = document.querySelector('.counter');
 		document.getElementById("game_div").style.display = "none";
+
 		socket.on('connect', () => {
 			socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
 		});
@@ -115,7 +96,7 @@
 					var num = votes[i];
 					counts[num] = counts[num] ? counts[num] + 1 : 1;
 				}
-				var k = "<table>"
+				var k = "<table class='table'>"
 				for (var key in counts) {
 					k += '<tr><td>' + key + '</td><td>' + counts[key] + '</td></tr>'
 
@@ -374,7 +355,7 @@
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
 			await sleep(10000)
 			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
-			await progress("cupid", 15)
+			await progress("cupid", 35)
 			night()
 			}else{
 				alert("Game Requires 6 or more people!")
@@ -510,15 +491,15 @@
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
 				console.log(werewolf_overall_choice)
 				console.log(username + " running night function")
-				await progress("werewolf", 60)
+				await progress("werewolf", 100)
 				if (werewolf_overall_choice) {
 					document.getElementById('vote_table').innerHTML = "";
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
-					await progress("seer", 5)
+					await progress("seer", 35)
 
 					document.getElementById('vote_table').innerHTML = "";
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
-					await progress("doctor", 5)
+					await progress("doctor", 35)
 
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
 				} else {
@@ -621,7 +602,7 @@
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
 		// investigate bug on second round where were_overall isnt working with game_users
 
-		// start game should get new roles for each player
+		// seer progress not working
 	});
 
 
