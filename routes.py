@@ -40,6 +40,11 @@ def new_round(data):
     room = data['channel']
     emit('start_new_round',data['username'], room=room)
 
+@socketio.on("seer_done")
+def seer_done(data):
+    room = data['channel']
+    emit("seer_done", room=room)
+
 @socketio.on("vote")
 def vote(data):
     room = data['channel']
@@ -55,6 +60,7 @@ def vote(data):
 def vote_now(data):
     room = data['channel']
     emit('vote_now', room=room)
+    emit('stop_progress_bar', room=room)
 
 
 @socketio.on("remove_player")
@@ -90,7 +96,8 @@ def disconnect():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    word = "penis"
+    return render_template('index.html', route=word)
 
 
 @app.route('/werewolf/<game>')

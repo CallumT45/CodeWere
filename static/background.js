@@ -86,8 +86,6 @@ function sleep(ms) {
 }
 
 async function sunset() {
-    console.log(myHeight)
-    console.log(myWidth)
     for (var j = myHeight / 10; j < myHeight; j += myHeight/ 80) {
         sky((2 * myWidth) / 3, j)
         await sleep(50)

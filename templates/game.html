@@ -87,7 +87,6 @@
 		socket.on('group_vote', async function (vote) {
 			// last event of game loop, if conditions are met after this function, re start the game loop
 			votes.push(vote)
-			console.log(votes)
 			if (votes.length == game_users.length) {
 				var to_be_lynched = most_voted(votes)
 				var counts = {};
@@ -141,8 +140,6 @@
 		socket.on('remove_player', function (_username) {
 			// first check if the removed player was a werewolf, if so, decrement number of werewolves
 			// then check to see if the removed user was under cupids influence, if so remove both
-			console.log(_username + " was a " + roles[_username])
-			console.log(game_users[werewolf_overall_choice].username)
 			if (roles[_username] == "Werewolf") {
 				console.log("removing a werewolf")
 				remove_user(werewolves, _username)
@@ -211,6 +208,7 @@
 		socket.on('set_roles', function (data) {
 			// This is the first function called in a game so does more than just sets roles. All displays the countdown and resets all tracker values
 			reset()
+			cupid_votes = [] // only needs to be reset on new game not new round
 			roles = data['role_dict']
 			werewolves = data['werewolves']
 			game_users = [...users]
@@ -219,6 +217,7 @@
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "none";
+			document.getElementById("username").innerHTML = '<h3>' + username + '</h3>';
 			runAnimation();
 
 		});
@@ -246,7 +245,7 @@
 						document.getElementById("counter").style.display = "none";
 						document.getElementById("game_div").style.display = "";
 						document.getElementById("game_div_title").innerHTML = "You are";
-						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
+						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
 						resetDOM()
 					}
 				});
@@ -260,7 +259,7 @@
 			if (roles[username] == "Werewolf") {
 				var k = '<div class="row">'
 				for (werewolf of werewolves) {
-					k += '<div class="card" style="width: 18rem;"><img src="static/images/Werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
+					k += '<div class="card" style="width: 18rem;"><img src="../static/images/Werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
 				}
 				k += '</div>'
 				document.getElementById("game_div_body").innerHTML = k;
@@ -278,7 +277,7 @@
 				document.getElementById("vote_table").innerHTML = ""
 				document.getElementById("game_div_title").innerHTML = "Vote";
 				document.getElementById("game_div_body").innerHTML = ""
-				document.getElementById("timer").style.display = "none";
+				document.getElementById("progressbar").style.display = "none";
 				if (check_username(game_users, username)) {
 					draw_table("day")
 				}
@@ -295,11 +294,12 @@
 			}
 			b.innerHTML = 'Vote Now';
 			document.getElementById("game_div_body").appendChild(b)
-			document.getElementById("timer").style.display = "";
+			document.getElementById("progressbar").style.display = "";
+			updateProgress()
 
 			let timer = setTimeout(function () {
 				document.getElementById("game_div_title").innerHTML = "Vote";
-				document.getElementById("timer").style.display = "none";
+				document.getElementById("progressbar").style.display = "none";
 				document.getElementById("game_div_body").innerHTML = "";
 				if (check_username(game_users, username)) {
 					draw_table("day")
@@ -339,6 +339,11 @@
 
 		});
 
+		socket.on('seer_done', function () {
+			seer_done = true;
+
+		});
+
 		socket.on('outcome_turn', function () {
 			sunrise()
 			outcome()
@@ -348,16 +353,16 @@
 		$('#start_button').on('click', start_game);
 
 		async function start_game() {
-			if (users.length >= 6){
-			cupid_votes = [] // only needs to be reset on new game not new round
-			socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
-			await sleep(10000)
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
-			await sleep(10000)
-			socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
-			await progress("cupid", 35)
-			night()
-			}else{
+			if (users.length >= 6) {
+				socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
+				await sleep(10000)
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
+				await sleep(10000)
+				console.log("Cupids values" + cupid_votes)
+				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'cupid' });
+				await progress("cupid", 35)
+				night()
+			} else {
 				alert("Game Requires 6 or more people!")
 			}
 		};
@@ -455,10 +460,10 @@
 
 					} else if (state == "seer") {
 						document.getElementById("game_div_title").innerHTML = game_users[value].username
-						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="static/images/' + roles[game_users[value].username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
+						document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[game_users[value].username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
 						document.getElementById('vote_table').innerHTML = "";
 						await sleep(5000)
-						seer_done = true;
+						socket.emit('seer_done', { 'channel': window.location.pathname.substr(1) });
 
 					} else if (state == "doctor") {
 						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state });
@@ -472,7 +477,6 @@
 
 					} else if (state == "werewolf") {
 						socket.emit('vote', { 'vote': value, 'channel': window.location.pathname.substr(1), "state": state, 'username': username });
-						// document.getElementById('vote_table').innerHTML = "";
 					}
 
 				});
@@ -579,30 +583,42 @@
 		}
 
 		function game_over() {
-			console.log(game_users)
+			document.getElementById("online_div").style.display = ""
 			document.getElementById("game_div_title").innerHTML = "Game Over!"
 			if (werewolves.length < 1) {
 				document.getElementById("game_div_body").innerHTML = "Congrats, all werewolves eliminated<br>";
 			} else {
 				document.getElementById("game_div_body").innerHTML = "The werewolves have taken over<br>";
 			}
-			// document.getElementById("game_div_body").innerHTML = "";
-			b = document.createElement("button");
-			b.setAttribute("id", "start_button")
-			b.setAttribute("class", "'btn btn-secondary'")
-			b.onclick = function () {
-				start_game()
+		}
+		var updateLock = true;
+		async function updateProgress() {
+			if (updateLock) {
+				updateLock = false;
+
+				socket.on('stop_progress_bar', function () {
+					ix = 1
+				});
+				for (var ix = 100; ix >= 0; ix--) {
+					document.getElementById("innerBar").style.width = ix + "%";
+					console.log("ix " + ix)
+					await sleep(3000)
+				}
+				console.log("progress done")
+				updateLock = true;
 			}
-			b.innerHTML = 'Start';
-			document.getElementById("game_div_body").appendChild(b)
+
 		}
 
+		document.getElementById('game_url').innerHTML = window.location.pathname.split("/")[2];
 
 		// change all votes criteria and wolf and group vote
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
 		// investigate bug on second round where were_overall isnt working with game_users
 
-		// seer progress not working
+		// add username display
+		// add comments
+		// progress bar not working on second day
 	});
 
 
@@ -611,38 +627,24 @@
 </script>
 
 
-<div class="card" id="online_div" style="z-index: 10000;">
-	<h2 class="card-title">Online</h2>
-	<div class="card-body">
-		<ul class="list-group" id="online"></ul>
-		<button class="btn btn-secondary" id="start_button">Start</button>
-	</div>
-</div>
 
 
 
- <div id='background'><!--style="display: none;"> -->
+
+<div id='background'>
+	<!--style="display: none;"> -->
 	<div id="starsContainer">
 		<div id="stars">
 		</div>
 	</div>
-
 	<div id="sun">
-
 	</div>
-
 	<div id="sunDay">
-
 	</div>
-
 	<div id="sunSet">
-
 	</div>
-
 	<div id="sky">
-
 	</div>
-
 	<div class="star" style="left: 250px; top: 30px;"></div>
 	<div class="star" style="left: 300px; top: 25px;"></div>
 	<div class="star" style="right: 40px; top: 40px;"></div>
@@ -682,12 +684,6 @@
 </div>
 
 
-
-
-
-
-
-
 <div id="game">
 	<div class="card" id="game_div" style="z-index: 10000;">
 		<div class="card-header" id="game_div_title"></div>
@@ -695,6 +691,12 @@
 		<div class="card-body" id="game_div_body">
 		</div>
 		<table id="vote_table" class="table"></table>
+		<div id="progressbar" style="display: none;">
+			<div id="innerBar"></div>
+		</div>
+
+		<div class="card-header" id="username"></div>
+
 	</div>
 
 
@@ -709,24 +711,20 @@
 	</div>
 
 
-	<div class="timer-group" id="timer" style="display: none;">
-		<div class="timer hour">
-			<div class="hand"><span></span></div>
-			<div class="hand"><span></span></div>
-		</div>
-		<div class="timer minute">
-			<div class="hand"><span></span></div>
-			<div class="hand"><span></span></div>
-		</div>
-		<div class="timer second">
-			<div class="hand"><span></span></div>
-			<div class="hand"><span></span></div>
-		</div>
-		<div class="face">
-			<h1>Werewolf</h1>
-		</div>
-	</div>
 
+</div>
+
+
+<div class="card" id="online_div" style="z-index: 10000;">
+	<h2 class="card-title">Online</h2>
+	<div class="card-body">
+		<ul class="list-group" id="online"></ul>
+		<button class="btn btn-secondary" id="start_button">Start</button><br>
+		<small class="text-muted">
+			<span>Send this code to friends:</span>
+			<a class="ml-2" style="color: rgb(8,76,85)" id="copyLink"><span id="game_url"></span></a>
+		</small>
+	</div>
 </div>
 
 

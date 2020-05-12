@@ -33,6 +33,11 @@ body {
     font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
+.footer {
+	width: 100%;
+	text-align: center;
+  }
+
 #game_div_title{
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-size: xx-large;
@@ -44,191 +49,23 @@ body {
   text-align: center;
 }
 
-/* Countdown from https://codepen.io/ninjascribble/pen/rHwkK */
-.timer-group {
-  height: 400px;
-  margin: 0 auto;
-  position: relative;
-  width: 400px;
-  z-index: 10000;
-}
-
-.timer {
-  margin-top: 50px;
-  border-radius: 50%;
-  height: 100px;
-  overflow: hidden;
-  position: absolute;
-  width: 100px;
-}
-
-.timer:after {
-  background: #111 url(https://codepen.io/images/classy_fabric.png);
-  border-radius: 50%;
-  content: "";
-  display: block;
-  height: 80px;
-  left: 10px;
-  position: absolute;
-  width: 80px;
-  top: 10px;
-}
-
-.timer .hand {
-  float: left;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
+#progressbar {
+  margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgb(82, 82, 82);
+  border-radius: 13px;
+  padding: 3px;
   width: 50%;
 }
 
+#innerBar {
+  background-color: whitesmoke;
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
 
-
-.face {
-  background: rgba(0, 0, 0, .1);
-  border-radius: 50%;
-  height: 296px;
-  left: 52px;
-  padding: 95px 40px 0;
-  position: absolute;
-  width: 296px;
-  text-align: center;
-  top: 103px;
 }
-
-.face h1 {
-  font-weight: 350;
-  font-family: 'Yanone Kaffeesatz', sans-serif;
-}
-
-
-.timer .hand span {
-  border: 50px solid rgba(0, 255, 255, .4);
-  border-bottom-color: transparent;
-  border-left-color: transparent;
-  border-radius: 50%;
-  display: block;
-  height: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transform: rotate(225deg);
-  width: 0;
-}
-
-.timer .hand:first-child {
-  transform: rotate(180deg);
-}
-
-.timer .hand span {
-  animation-duration: 4s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-}
-
-.timer .hand:first-child span {
-  animation-name: spin1;
-}
-
-.timer .hand:last-child span {
-  animation-name: spin2; 
-}
-
-.timer:hover {
-  animation-play-state: initial;
-}
-
-
-.timer.hour {
-  background: rgba(0, 0, 0, .3);
-  height: 400px;
-  left: 0;
-  width: 400px;
-  top: 0;
-}
-
-.timer.hour .hand span {
-  animation-duration: 300s;
-  border-top-color: rgba(255, 0, 255, .4);
-  border-right-color: rgba(255, 0, 255, .4);
-  border-width: 200px;
-}
-
-.timer.hour:after {
-  height: 360px;
-  left: 20px;
-  width: 360px;
-  top: 20px;
-}
-
-.timer.minute {
-  background: rgba(0, 0, 0, .2);
-  height: 350px;
-  left: 25px;
-  width: 350px;
-  top: 25px;
-}
-
-.timer.minute .hand span {
-  animation-duration: 60s;
-  border-top-color: rgba(0, 255, 255, .4);
-  border-right-color: rgba(0, 255, 255, .4);
-  border-width: 175px;
-}
-
-.timer.minute:after {
-  height: 310px;
-  left: 20px;
-  width: 310px;
-  top: 20px;
-}
-
-.timer.second {
-  background: rgba(0, 0, 0, .2);
-  height: 300px;
-  left: 50px;
-  width: 300px;
-  top: 50px;
-}
-
-.timer.second .hand span {
-  animation-duration: 1s;
-  border-top-color: rgba(255, 255, 255, .15);
-  border-right-color: rgba(255, 255, 255, .15);
-  border-width: 150px;
-}
-
-.timer.second:after {
-  height: 296px;
-  left: 2px;
-  width: 296px;
-  top: 2px;
-}
-
-@keyframes spin1 {
-  0% {
-    transform: rotate(225deg);
-  }
-  50% {
-    transform: rotate(225deg);
-  }
-  100% {
-    transform: rotate(405deg);
-  }
-}
-
-@keyframes spin2 {
-  0% {
-    transform: rotate(225deg);
-  }
-  50% {
-    transform: rotate(405deg);
-  }
-  100% {
-    transform: rotate(405deg);
-  }
-}
-
 
 /* Game Countdown */
 /* ========================================= */
