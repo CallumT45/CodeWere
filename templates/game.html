@@ -25,6 +25,7 @@
 		var seer_done = false;
 		var werewolves = [];
 		var day = false;
+		var removed_roles = [];
 
 		const nums = document.querySelectorAll('.nums span');
 		const counter = document.querySelector('.counter');
@@ -208,7 +209,8 @@
 		socket.on('set_roles', function (data) {
 			// This is the first function called in a game so does more than just sets roles. All displays the countdown and resets all tracker values
 			reset()
-			cupid_votes = [] // only needs to be reset on new game not new round
+			cupid_votes = []; 
+			removed_roles = []; // only needs to be reset on new game not new round
 			roles = data['role_dict']
 			werewolves = data['werewolves']
 			game_users = [...users]
@@ -217,7 +219,7 @@
 			document.getElementById('vote_table').innerHTML = "";
 			document.getElementById("online_div").style.display = "none";
 			document.getElementById("game_div").style.display = "none";
-			document.getElementById("username").innerHTML = '<h3>' + username + '</h3>';
+			document.getElementById("username").innerHTML = '<h4>' + username + '</h4>';
 			runAnimation();
 
 		});
@@ -493,17 +495,27 @@
 				werewolf_overall_choice = null;
 				document.getElementById('vote_table').innerHTML = "";
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
-				console.log(werewolf_overall_choice)
-				console.log(username + " running night function")
+
 				await progress("werewolf", 100)
 				if (werewolf_overall_choice) {
 					document.getElementById('vote_table').innerHTML = "";
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
-					await progress("seer", 35)
+					if (removed_roles.includes("Seer")){
+						console.log("Sleeping")
+						await sleep(Math.floor(Math.random() * 15000)+5000)
+						console.log("Waking")
+					} else{
+						await progress("seer", 35)
+					}
 
 					document.getElementById('vote_table').innerHTML = "";
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'doctor' });
-					await progress("doctor", 35)
+					if (removed_roles.includes("Doctor")){
+						await sleep(Math.floor(Math.random() * 10000)+5000)
+					} else{
+						await progress("doctor", 35)
+					}
+					
 
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'outcome' });
 				} else {
@@ -550,7 +562,7 @@
 		async function outcome() {
 			document.getElementById("game_div_title").innerHTML = "Day break!"
 			if (werewolf_overall_choice != doctor_choice) {
-				document.getElementById("game_div_body").innerHTML = game_users[werewolf_overall_choice].username + " was brutally mauled to death last night"
+				document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/Grave.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + game_users[werewolf_overall_choice].username + ' was brutally mauled to death last night</h5></div></div>'
 				socket.emit('remove_player', { 'username': game_users[werewolf_overall_choice].username, 'channel': window.location.pathname.substr(1) });
 			}
 			else {
@@ -569,7 +581,7 @@
 		}
 
 		function remove_user(obj, _username) {
-			console.log(obj)
+			removed_roles.push(roles[_username])
 			for (var i = 0; i < obj.length; i++) {
 				if (obj[i].username == _username) {
 					obj.splice(i, 1);
@@ -578,9 +590,9 @@
 					obj.splice(i, 1);
 				}
 			}
-			console.log("Remove user: " + _username)
-			console.log(werewolves);
+
 		}
+
 
 		function game_over() {
 			document.getElementById("online_div").style.display = ""
@@ -614,11 +626,9 @@
 
 		// change all votes criteria and wolf and group vote
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
-		// investigate bug on second round where were_overall isnt working with game_users
 
-		// add username display
 		// add comments
-		// progress bar not working on second day
+		// game over screen not appearing for client running game, due to error in outcome
 	});
 
 
