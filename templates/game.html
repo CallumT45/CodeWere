@@ -140,7 +140,8 @@
 
 		socket.on('remove_player', function (_username) {
 			// first check if the removed player was a werewolf, if so, decrement number of werewolves
-			// then check to see if the removed user was under cupids influence, if so remove both
+			// then check to see if the removed user was under cupids influence, if so remove both. If player removed is the hunter give them a chance to kill 
+			// a perosn of their choosing.
 			if (roles[_username] == "Werewolf") {
 				console.log("removing a werewolf")
 				remove_user(werewolves, _username)
@@ -166,6 +167,9 @@
 		});
 
 		socket.on('were_choice', function (data) {
+			// First check if the username has already voted, if so remove their previous vote
+			// Then create an object and push it to the werewolf array, if the user is a Werewolf redraw the table cell with the updated markers.
+			// If all the werewoles agree, i.e. most_voted has len 1, then see the output value as that choice. This will let the next player have their turn.
 			for (var i = 0; i < were_choice.length; i++) {
 				if (were_choice[i].username == data['username']) {
 					if (roles[username] == "Werewolf") {
@@ -197,20 +201,18 @@
 
 		socket.on('cupid_vote', function (vote) {
 			cupid_votes.push(vote)
-			console.log(cupid_votes)
 		});
 
 		socket.on('doctor_choice', function (vote) {
 			doctor_choice = vote
-			console.log("Docs choice")
-			console.log(doctor_choice)
 		});
 
 		socket.on('set_roles', function (data) {
-			// This is the first function called in a game so does more than just sets roles. All displays the countdown and resets all tracker values
+			// This is the first function called in a game so does more than just sets roles. Displays the countdown and resets all tracker values
 			reset()
 			cupid_votes = []; 
 			removed_roles = []; // only needs to be reset on new game not new round
+
 			roles = data['role_dict']
 			werewolves = data['werewolves']
 			game_users = [...users]
@@ -256,8 +258,9 @@
 
 
 		socket.on('show_werewolves', function () {
+			// If the user is a werewolf show them all the werewolves, else show that the werewolves are looking
 			document.getElementById("game_div_title").innerHTML = "Werewolves";
-			document.getElementById("game_div").style.display = "";
+			// document.getElementById("game_div").style.display = "";
 			if (roles[username] == "Werewolf") {
 				var k = '<div class="row">'
 				for (werewolf of werewolves) {
@@ -274,6 +277,8 @@
 
 
 		socket.on('day_cycle', function () {
+			// Tell the users to discuss and start a 5 minute timer with countdown bar. Also adds a button to allow them to vote before the 5 mins. If the button is clicked,
+			// alert all users, cancel the 5 minute timer, if the user is still in the game allow them to vote.
 			socket.on('vote_now', function () {
 				clearTimeout(timer);
 				document.getElementById("vote_table").innerHTML = ""
@@ -355,6 +360,7 @@
 		$('#start_button').on('click', start_game);
 
 		async function start_game() {
+			// The user that clicks start will run the first game interation off their client. Starts the game then waits 10 seconds to run animations and show user their role.
 			if (users.length >= 6) {
 				socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
 				await sleep(10000)
@@ -370,6 +376,7 @@
 		};
 
 		function turn(role, body) {
+			// If the user is the given role, show a vote table, otherwise show the given message.
 			document.getElementById("game_div_title").innerHTML = role;
 			document.getElementById("game_div").style.display = "";
 			if (roles[username] == role && check_username(game_users, username)) {
@@ -383,14 +390,14 @@
 
 		}
 
-		function show_votes_f(upOrdown, inner_html) {
+		function show_votes_f(upOrDown, inner_html) {
+			// count how many empty circles, then work aout how many full circles. If depending on upOrDown change empty circles count, then return the string with the new 
+			// amounts of emojis.
 			var output = ""
 			var empty = "\u26AA"
 			var full = "&#128308"
-			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrdown;
+			var count_empty = (inner_html.match(/\u26AA/g) || []).length - upOrDown;
 			var count_full = werewolves.length - count_empty
-			console.log(count_empty)
-			console.log(count_full)
 			output += full.repeat(count_full) + empty.repeat(count_empty)
 			return '<br>' + output
 
@@ -425,6 +432,16 @@
 
 
 		function draw_table(state) {
+			// show votes will be added to all cells, if the state is werewolf then emojis will be added, otherwise the empty string will be added.
+			// Loop through the game users and create a clickable table that is 2 wide, depending on the state clicking will have different behaviour.
+			// There is a hidden input with each cell to determine which index was clicked.
+
+			// Day will send the vote then hide the table, allowing only one vote.
+			// cupids waits for two votes before hding the table and doesnt allow vote changing. 
+			// Seer will show the seer the role of who they pick then wait 5 seconds before alerting all users that seer turn is done.
+			// Doctor, werewolf work like day vote
+
+
 			elements = []
 			document.getElementById('vote_table').innerHTML = "";
 			var show_votes = "";
@@ -490,20 +507,20 @@
 
 		var lock = false;
 		async function night() {
+			// Locked so it may only be run once, runs through each role giving them time to vote then progresses to daytime. If the role is already dead, allots
+			// a random amount of time to give the appearance of the role still being in the game.
 			if (!lock) {
 				lock = true;
 				werewolf_overall_choice = null;
 				document.getElementById('vote_table').innerHTML = "";
 				socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
-
+				// if werewolves dont choose someone then game ends, other roles are able to abstain from voting
 				await progress("werewolf", 100)
 				if (werewolf_overall_choice) {
 					document.getElementById('vote_table').innerHTML = "";
 					socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
 					if (removed_roles.includes("Seer")){
-						console.log("Sleeping")
 						await sleep(Math.floor(Math.random() * 15000)+5000)
-						console.log("Waking")
 					} else{
 						await progress("seer", 35)
 					}
@@ -532,6 +549,8 @@
 			return new Promise(resolve => setTimeout(resolve, ms));
 		}
 		async function progress(state, time_out) {
+			// given a total time, this function will sleep for a second then check if the condition had been met. The while loop while end if the condition is met, ie perosn voted
+			// or is timed out
 			var flag = null;
 			var i = 0
 			while (i < time_out && !flag) {
@@ -545,9 +564,8 @@
 					flag = (cupid_votes.length == 2)
 				}
 
-
-				await sleep(1000)
-				i++
+				await sleep(1000);
+				i++;
 			}
 		}
 
@@ -560,6 +578,8 @@
 			were_choice = [];
 		}
 		async function outcome() {
+			// Two outcomes from a night turn, either the werewolves killed someone or the doctor saved them. If the game conditions are still met after this turn this function will 
+			// continue the game
 			document.getElementById("game_div_title").innerHTML = "Day break!"
 			if (werewolf_overall_choice != doctor_choice) {
 				document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/Grave.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + game_users[werewolf_overall_choice].username + ' was brutally mauled to death last night</h5></div></div>'
@@ -603,6 +623,7 @@
 				document.getElementById("game_div_body").innerHTML = "The werewolves have taken over<br>";
 			}
 		}
+
 		var updateLock = true;
 		async function updateProgress() {
 			if (updateLock) {
@@ -613,10 +634,8 @@
 				});
 				for (var ix = 100; ix >= 0; ix--) {
 					document.getElementById("innerBar").style.width = ix + "%";
-					console.log("ix " + ix)
 					await sleep(3000)
 				}
-				console.log("progress done")
 				updateLock = true;
 			}
 
@@ -627,7 +646,6 @@
 		// change all votes criteria and wolf and group vote
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
 
-		// add comments
 		// game over screen not appearing for client running game, due to error in outcome
 	});
 
@@ -642,7 +660,6 @@
 
 
 <div id='background'>
-	<!--style="display: none;"> -->
 	<div id="starsContainer">
 		<div id="stars">
 		</div>
