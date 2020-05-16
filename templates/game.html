@@ -120,7 +120,8 @@
 					document.getElementById("game_div_body").innerHTML = "";
 					if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
 						document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
-						document.getElementById("game_div_body").innerHTML += to_be_lynched + " has been lynched!"
+						document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Lynched.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + to_be_lynched + ' has been lynched!</h5></div></div>'
+
 						await sleep(3000)
 						sunset()
 						document.getElementById("game_div_title").innerHTML = "Night Falls"
@@ -646,7 +647,9 @@
 		// change all votes criteria and wolf and group vote
 		// fix hunter timing, what happens if hunter doesnt vote for anyone
 
-		// game over screen not appearing for client running game, due to error in outcome
+		//change timing on day outcome
+		//test hunter
+		//add more roles?
 	});
 
 
