@@ -17,6 +17,15 @@ words = long_txt.splitlines()
 
 clean_words = [word for word in words if (3 <= len(word) <= 6) and (not "\'" in word)]
 
+role_dict = {
+    "a": "Werewolf",
+    "b": "Villager",
+    "c": "Cupid",
+    "d": "Hunter",
+    "e": "Seer",
+    "f": "Doctor"
+}
+werewolves = ["a"]
 
 
 
@@ -24,8 +33,8 @@ clean_words = [word for word in words if (3 <= len(word) <= 6) and (not "\'" in 
 def message(data):
     room = data['channel']
     users = data['users'] 
-    ww = Werewolf([index['username'] for index in users])
-    emit('set_roles',{'role_dict':ww.role_dict, 'werewolves': ww.werewolves}, room=room)
+    # ww = Werewolf([index['username'] for index in users])
+    emit('set_roles',{'role_dict':role_dict, 'werewolves': werewolves}, room=room)
 
 @socketio.on("turn")
 def cupid(data):
