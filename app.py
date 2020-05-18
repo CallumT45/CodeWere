@@ -103,4 +103,4 @@ def chat(game):
     return render_template('game.html')
 
 if __name__ == '__main__':
-	socketio.run(app)
+	app.run()
