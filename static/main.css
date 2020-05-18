@@ -33,6 +33,15 @@ body {
     font-family: 'Yanone Kaffeesatz', sans-serif;
 }
 
+.btn {
+  padding: 15px 32px;
+  font-size: 16px;
+}
+
+::placeholder {
+  color: #bab5b5;
+}
+
 .footer {
 	width: 100%;
 	text-align: center;

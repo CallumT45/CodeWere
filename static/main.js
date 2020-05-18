@@ -152,7 +152,7 @@ $(document).ready(function () {
                 cupid_votes.splice(1, 1);
             }
             
-            document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Heart.png" class="card-img-top" alt="heart"><div class="card-body"><h4 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h4></div></div>'
+            document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Heart.png" class="card-img-top" alt="heart"><div class="card-body"><h5 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h5></div></div>'
             remove_user(game_users, _username)
             if (roles[cupid_votes[0]] == "Werewolf") {
                 remove_user(werewolves, cupid_votes[0])
@@ -361,7 +361,7 @@ $(document).ready(function () {
 
     async function start_game() {
         // The user that clicks start will run the first game interation off their client. Starts the game then waits 10 seconds to run animations and show user their role.
-        if (users.length >= 0) {
+        if (users.length >= 6 && users.length <=20) {
             socket.emit('game_start', { 'users': users, 'channel': window.location.pathname.substr(1) });
             await sleep(10000)
             socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'show_werewolves' });
@@ -371,7 +371,7 @@ $(document).ready(function () {
             await progress("cupid", 35)
             night()
         } else {
-            alert("Game Requires 6 or more people!")
+            alert("Game Requires 6 - 20 people!")
         }
     };
 

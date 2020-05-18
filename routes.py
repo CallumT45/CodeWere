@@ -105,8 +105,8 @@ def disconnect():
 
 @app.route('/')
 def index():
-    word = "penis"
-    return render_template('index.html', route=word)
+    route = '-'.join(random.sample(clean_words,2))
+    return render_template('index.html', route=route)
 
 
 @app.route('/werewolf/<game>')
@@ -114,4 +114,4 @@ def chat(game):
     return render_template('game.html')
 
 if __name__ == '__main__':
-	socketio.run(app, debug=True)
+	socketio.run(app)
