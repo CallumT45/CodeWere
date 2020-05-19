@@ -6,6 +6,7 @@ $(document).ready(function () {
 
     var socket = io.connect();
 
+// global variables
     var users = [];
     var votes = [];
     var roles = [];
