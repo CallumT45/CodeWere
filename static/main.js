@@ -4,7 +4,7 @@ $(document).ready(function () {
         window.location = "/";
     }
 
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var socket = io.connect('https://' + document.domain + ':' + location.port);
 
     var users = [];
     var votes = [];
