@@ -4,7 +4,7 @@ $(document).ready(function () {
         window.location = "/";
     }
 
-    var socket = io.connect();
+    var socket = io.connect("");
 
 // global variables
     var users = [];
