@@ -26,6 +26,10 @@
   margin-top: 50px;
 }
 
+caption{
+  text-align: center;
+}
+
 body {
     color: rgb(119, 119, 119);
     background: #111;

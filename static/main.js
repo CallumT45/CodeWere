@@ -258,6 +258,15 @@ $(document).ready(function () {
 
     }
 
+    vote_text = {
+        "cupid" : "Pick two lovers!",
+        "doctor" : "Choose who to save!",
+        "day": "Choose who to lynch!",
+        "seer" : "Choose someone to examine",
+        "hunter" : "Pick one person to take with you to the grave!",
+        "werewolf" : "Keep choosing until there is a majority"
+    }
+
 
 
     function runAnimation() {
@@ -481,6 +490,9 @@ $(document).ready(function () {
                 show_votes += "\u26AA"
             }
         }
+        c = document.createElement("caption");
+        c.innerHTML = '<br>' + vote_text[state];
+        document.getElementById('vote_table').appendChild(c)
         for (var j = 0; j < game_users.length; j++) {
 
             if (j % 2 == 0) {
