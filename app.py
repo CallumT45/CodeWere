@@ -29,7 +29,7 @@ def message(data):
 def cupid(data):
     room = data['channel']
     turn = data['turn']
-    ref = {"cupid":"cupids_turn","seer":"seers_turn", "doctor": "doctors_turn", "werewolf":"werewolves_turn","outcome":"outcome_turn","day":"day_cycle","show_werewolves":"show_werewolves"}
+    ref = {"cupid":"cupids_turn","seer":"seers_turn", "doctor": "doctors_turn", "werewolf":"werewolves_turn","outcome":"outcome_turn","day":"day_cycle","show_werewolves":"show_werewolves","were_starve":"were_starve"}
     emit(ref[turn], room=room)
          
 
@@ -103,4 +103,4 @@ def chat(game):
     return render_template('game.html')
 
 if __name__ == '__main__':
-	socketio.run(app)
+	socketio.run(app, debug=True)

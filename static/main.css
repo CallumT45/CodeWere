@@ -47,6 +47,28 @@ body {
 	text-align: center;
   }
 
+  #tooltip {
+    border-bottom: 1px dotted black;
+  }
+  
+  #tooltip #tooltiptext {
+    visibility: hidden;
+    width: 75%;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 10000000;
+  }
+  
+  #tooltip:hover #tooltiptext {
+    visibility: visible;
+  }
+
+
+
 #game_div_title{
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-size: xx-large;

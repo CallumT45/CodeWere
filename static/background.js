@@ -1,6 +1,5 @@
 var pos = { x: 0, y: 0 };
 var myWidth = 0, myHeight = 0;
-var mouseIsDownDivision = false;
 updateDimensions();
 function sky(x, y) {
     pos.x = x
