@@ -119,7 +119,7 @@ $(document).ready(function () {
                     document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
                     document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Lynched.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + to_be_lynched + ' has been lynched!</h5></div></div>'
 
-                    await sleep(3000)
+                    await sleep(6000)
                     sunset()
                     document.getElementById("game_div_title").innerHTML = "Night Falls"
                     document.getElementById("game_div_body").innerHTML = ""
@@ -129,6 +129,7 @@ $(document).ready(function () {
                     socket.emit('start_new_round', { 'username': game_users[0].username, 'channel': window.location.pathname.substr(1) });
 
                 } else {
+                    await sleep(3000)
                     game_over()
                 }
             }
@@ -151,7 +152,7 @@ $(document).ready(function () {
                 cupid_votes.splice(1, 1);
             }
 
-            document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Heart.png" class="card-img-top" alt="heart"><div class="card-body"><h5 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h5></div></div>'
+            document.getElementById("game_div_body").innerHTML += '<br><div class="card" style="width: 18rem;"><img src="../static/images/Heart.png" class="card-img-top" alt="heart"><div class="card-body"><h5 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h5></div></div>'
             remove_user(game_users, _username)
             if (roles[cupid_votes[0]] == "Werewolf") {
                 remove_user(werewolves, cupid_votes[0])
@@ -331,7 +332,7 @@ $(document).ready(function () {
         if (check_username(game_users, username)) {// only players alive can force a vote 
             b = document.createElement("button");
             b.setAttribute("id", "vote_now_button")
-            b.setAttribute("class", "'btn btn-secondary'")
+            b.setAttribute("class", "btn btn-secondary")
             b.onclick = function () {
                 vote_now();
             }
@@ -559,7 +560,7 @@ $(document).ready(function () {
             document.getElementById('vote_table').innerHTML = "";
             socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'werewolf' });
             // if werewolves dont choose someone then game ends, other roles are able to abstain from voting
-            await progress("werewolf", 20)
+            await progress("werewolf", 120)
             if (werewolf_overall_choice) {
                 document.getElementById('vote_table').innerHTML = "";
                 socket.emit('turn', { 'channel': window.location.pathname.substr(1), 'turn': 'seer' });
