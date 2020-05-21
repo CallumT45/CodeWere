@@ -117,7 +117,7 @@ $(document).ready(function () {
 
                 if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
                     document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
-                    document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/Lynched.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + to_be_lynched + ' has been lynched!</h5></div></div>'
+                    document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/lynched.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + to_be_lynched + ' has been lynched!</h5></div></div>'
 
                     await sleep(6000)
                     sunset()
@@ -152,7 +152,7 @@ $(document).ready(function () {
                 cupid_votes.splice(1, 1);
             }
 
-            document.getElementById("game_div_body").innerHTML += '<br><div class="card" style="width: 18rem;"><img src="../static/images/Heart.png" class="card-img-top" alt="heart"><div class="card-body"><h5 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h5></div></div>'
+            document.getElementById("game_div_body").innerHTML += '<br><div class="card" style="width: 18rem;"><img src="../static/images/heart.png" class="card-img-top" alt="heart"><div class="card-body"><h5 class="card-title">' + 'Overcome with grief by the loss of ' + _username + ', ' + cupid_votes[0] + ' killed themself!</h5></div></div>'
             remove_user(game_users, _username)
             if (roles[cupid_votes[0]] == "Werewolf") {
                 remove_user(werewolves, cupid_votes[0])
@@ -285,7 +285,7 @@ $(document).ready(function () {
                     document.getElementById("counter").style.display = "none";
                     document.getElementById("game_div").style.display = "";
                     document.getElementById("game_div_title").innerHTML = "You are";
-                    document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
+                    document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[username].toLowerCase() + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[username] + '</h5></div></div>'
                     resetDOM()
                 }
             });
@@ -300,7 +300,7 @@ $(document).ready(function () {
         if (roles[username] == "Werewolf") {
             var k = '<div class="row">'
             for (werewolf of werewolves) {
-                k += '<div class="card" style="width: 18rem;"><img src="../static/images/Werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
+                k += '<div class="card" style="width: 18rem;"><img src="../static/images/werewolf.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + werewolf + '</h5></div></div>'
             }
             k += '</div>'
             document.getElementById("game_div_body").innerHTML = k;
@@ -524,7 +524,7 @@ $(document).ready(function () {
 
                 } else if (state == "seer") {
                     document.getElementById("game_div_title").innerHTML = game_users[value].username
-                    document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[game_users[value].username] + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
+                    document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/' + roles[game_users[value].username].toLowerCase() + '.png" class="card-img-top" alt="werewolf"><div class="card-body"><h5 class="card-title">' + roles[game_users[value].username] + '</h5></div></div>'
                     document.getElementById('vote_table').innerHTML = "";
                     await sleep(5000)
                     socket.emit('seer_done', { 'channel': window.location.pathname.substr(1) });
@@ -625,7 +625,7 @@ $(document).ready(function () {
         // continue the game
         document.getElementById("game_div_title").innerHTML = "Day Break!"
         if (werewolf_overall_choice != doctor_choice) {
-            document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/Grave.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + game_users[werewolf_overall_choice].username + ' was brutally mauled to death last night</h5></div></div>'
+            document.getElementById("game_div_body").innerHTML = '<div class="card" style="width: 18rem;"><img src="../static/images/grave.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + game_users[werewolf_overall_choice].username + ' was brutally mauled to death last night</h5></div></div>'
             socket.emit('remove_player', { 'username': game_users[werewolf_overall_choice].username, 'channel': window.location.pathname.substr(1) });
         }
         else {
