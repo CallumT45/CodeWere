@@ -109,17 +109,17 @@ $(document).ready(function () {
                     draw_table("day")
                 }
             } else {
-                var timeToSleep = roles[to_be_lynched] == "Hunter" ? 13000 : 5000;
-                socket.emit('remove_player', { 'username': to_be_lynched, 'channel': window.location.pathname.substr(1) });
+                // new order to be tested
+                var timeToSleep = roles[to_be_lynched[0]] == "Hunter" ? 15000 : 5000;
+                
                 await sleep(timeToSleep)
                 document.getElementById("game_div_body").innerHTML = "";
+                document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
+                document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/lynched.png" class="card-img-top" alt="lynched"><div class="card-body"><h5 class="card-title">' + to_be_lynched[0] + ' has been lynched!</h5></div></div>'
+                socket.emit('remove_player', { 'username': to_be_lynched[0], 'channel': window.location.pathname.substr(1) });
 
-
-                if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {// should be 0 not 1
-                    document.getElementById("vote_table").innerHTML = "" //removes table from hunter if they didn't vote
-                    document.getElementById("game_div_body").innerHTML += '<div class="card" style="width: 18rem;"><img src="../static/images/lynched.png" class="card-img-top" alt="grave"><div class="card-body"><h5 class="card-title">' + to_be_lynched + ' has been lynched!</h5></div></div>'
-
-                    await sleep(6000)
+                if (werewolves.length > 0 && (2 * werewolves.length < game_users.length)) {
+                    await sleep(7000)
                     sunset()
                     document.getElementById("game_div_title").innerHTML = "Night Falls"
                     document.getElementById("game_div_body").innerHTML = ""
@@ -213,7 +213,6 @@ $(document).ready(function () {
         roles = data['role_dict']
         werewolves = data['werewolves']
         game_users = [...users]
-        console.log(data)
         sunset()
         document.getElementById('vote_table').innerHTML = "";
         document.getElementById("online_div").style.display = "none";
