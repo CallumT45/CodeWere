@@ -68,6 +68,9 @@
 		<div id="progressbar" style="display: none;">
 			<div id="innerBar"></div>
 		</div>
+		<div id="death" style="display: none;">
+			<span>You have been killed, remember to stay quiet</span>
+		</div>
 
 		<div class="card-header" id="username"></div>
 
@@ -92,11 +95,15 @@
 <div class="card" id="online_div" style="z-index: 10000;">
 	<h2 class="card-title">Online</h2>
 	<div class="card-body">
+		<small class="text-muted">
+			<p>Due to free hosting, there may be issues with users joining. If this happens join a new room. <br>Do not refresh page once game has started</p>
+		</small>
 		<ul class="list-group" id="online"></ul>
 		<button class="btn btn-secondary" id="start_button">Start</button><br>
 		<small class="text-muted">
 			<span>Send this code to friends:</span>
-			<a class="ml-2" style="color: rgb(8,76,85)" id="copyLink"><span id="game_url"></span></a>
+			<a class="ml-2" style="color: rgb(8,76,85)" id="copyLink"><span id="game_url"></span></a><br>
+			<a class="ml-2" style="color: rgb(8,76,85)" id="userLink" href="/">Change Username</a>
 		</small>
 	</div>
 </div>

@@ -6,6 +6,9 @@
 #vote_table td{
   width: 10%;
   height: 70px;
+}
+
+td{
   font-weight: bolder;
   vertical-align: middle; 
 }
