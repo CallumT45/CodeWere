@@ -14,10 +14,10 @@ class Werewolf():
         self.num_wolves = 2
         self.num_villagers_with_roles = 3
         num = len(self.users)
-        if num > 9:
+        if num > 8:
             self.num_wolves = 3
             self.num_villagers_with_roles = 4
-        if num > 13:
+        if num > 12:
             self.num_wolves = 5
 
         self.werewolves = random.sample(self.users, self.num_wolves)
