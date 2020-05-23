@@ -8,6 +8,11 @@
   height: 70px;
 }
 
+#game_select td{
+
+  font-size: xx-large;
+}
+
 td{
   font-weight: bolder;
   vertical-align: middle; 
@@ -15,6 +20,13 @@ td{
 
 #vote_table td:hover {background-color: #f5f5f5;}
 
+#game_select td{
+  width: 10%;
+  height: 70px;
+}
+
+
+#game_select td:hover {background-color: #f5f5f5;}
 
 @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400);
 
@@ -81,7 +93,7 @@ body {
   font-size: xx-large;
 }
 
-#init{
+#init, #game_select{
   margin-left: auto;
   margin-right: auto;
   text-align: center;

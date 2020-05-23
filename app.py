@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, send, join_room, emit
 from werewolves import Werewolf
+from Codenames import Codenames
 import urllib.request, string, random
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -19,7 +20,7 @@ clean_words = [word for word in words if (3 <= len(word) <= 6) and (not "\'" in 
 
 
 @socketio.on("game_start")
-def message(data):
+def were_start(data):
     room = data['channel']
     users = data['users'] 
     ww = Werewolf([index['username'] for index in users])
@@ -92,15 +93,50 @@ def disconnect():
     emit('user_leave', sid, room=room)
     del clients[sid]
 
+
+@socketio.on("message")
+def message(data):
+    room = data['channel']
+    send(data['message'], room=room)
+
+@socketio.on("new_game")
+def new_game(data):
+    room = data['channel']
+    cc = Codenames()
+    emit('new_data',cc.build_json(), room=room)
+
+@socketio.on("end_turn")
+def end_turn(data):
+    room = data['channel']
+    emit("end_turn", room=room)
+
+
+@app.route('/werewolf')
+def were_index():
+    route = '-'.join(random.sample(clean_words,2))
+    return render_template('werewolf_index.html', route=route)
+
 @app.route('/')
 def index():
-    route = '-'.join(random.sample(clean_words,2))
-    return render_template('index.html', route=route)
+    return render_template('index.html')
+
+
+@app.route('/codenames')
+def code_index():
+    two_words = random.sample(clean_words,2)
+    route = '-'.join(two_words)
+    return render_template('codenames_index.html', route = route)   
+
+@app.route('/codenames/<game>')
+def codenames(game):
+    cc = Codenames()
+    content = cc.build_json()
+    return render_template('code_game.html', **content)   
 
 
 @app.route('/werewolf/<game>')
 def chat(game):
-    return render_template('game.html')
+    return render_template('were_game.html')
 
 if __name__ == '__main__':
 	socketio.run(app, debug=True)

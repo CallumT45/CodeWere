@@ -1,0 +1,46 @@
+{% extends "layout.html" %} {% block content %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='code.css') }}">
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<title>Codenames</title>
+
+
+<section class="jumbotron text-center">
+    <div class="container">
+        <h1>Codenames</h1>
+        <p>A basic web app developed by Callum Terry.</p>
+        <small class="text-muted">
+            <span>Send this link to friends:</span>
+            <a class="ml-2" style="color: rgb(8,76,85)" id="copyLink"><span id="game_url"></span></a>
+        </small>
+    </div>
+</section>
+<div id='info_bar'>
+    <span id="blues_turns"></span><strong> — </strong><span id="reds_turns"></span>
+    <span id="turn">Blues Turn</span>
+
+</div>
+<div id="game_table_div">
+    <table id="game_table" class="table"></table>
+</div>
+<div id='bottom_bar'>
+    <button class="btn btn-success" id='spymaster_button'>Spymaster</button>
+    <button class="btn btn-success" id='new_game_button'>New Game</button>
+    <button class="btn btn-success" id='end_turn_button'>End Turn</button>
+    <label class="checkbox-inline">
+        <input type="checkbox" data-toggle="toggle" data-onstyle="success" id="darkmode">
+    </label>
+
+</div>
+
+<script>
+    var game_words = {{ game_words| tojson }};
+    var blue_words = {{ blue_words| tojson }};
+    var red_words = {{ red_words| tojson }};
+    var black_word = {{ black_word| tojson }};
+</script>
+<script src="{{ url_for('static', filename='code.js') }}"></script>
+{% endblock content %}

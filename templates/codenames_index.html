@@ -1,0 +1,50 @@
+{% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='code.css') }}">
+<title>Codenames</title>
+<section class="jumbotron text-center">
+  <div class="container">
+    <h1>Codenames</h1>
+    <p>A basic web app developed by Callum Terry.</p>
+  </div>
+</section>
+
+<div id="init">
+  <p>Play Codenames online across multiple devices on a shared board. To create a new game or join an existing game,
+    enter a game identifier and click 'GO'.</p>
+  <input type="text" class="form-control" id="game_id" value={{ route }}>
+  <p>
+    <button class="btn btn-success" type="button" data-toggle="collapse" data-target="#collapseExample"
+      aria-expanded="false" aria-controls="collapseExample">How to Play</button>
+      <button class="btn btn-success" id='create_game_button'>Go</button>
+  </p>
+  <div class="collapse" id="collapseExample">
+    <div class="card card-body">
+      Spymasters know the secret identities of 25 agents. Their teammates know the agents only by their codenames.
+      Spymasters take turns giving one-word clues. A clue may relate to multiple words on the table. The field
+      operatives try to guess which words their spymaster meant.
+      <br>When a field operative touches a word, the spymaster reveals its secret identity. If the field operatives
+      guess correctly, they may continue guessing,
+      until they run out of ideas for the given clue or until they hit a wrong person. Then it is the other team's
+      turn to give a clue and guess.
+      The first team to contact all their agents wins the game.
+    </div>
+  </div>
+
+
+</div>
+
+
+<script>
+
+  $(document).ready(function () {
+    $('#create_game_button').click(function () {
+      window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/codenames/'+ $('#game_id').val());
+    })
+  });
+
+
+</script>
+
+
+
+{% endblock content %}
