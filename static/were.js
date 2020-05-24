@@ -219,7 +219,6 @@ $(document).ready(function () {
         document.getElementById("death").style.display = "none";
 
         roles = data['role_dict']
-        console.log(data)
         werewolves = data['werewolves']
         game_users = [...users]
         sunset()
