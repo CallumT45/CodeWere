@@ -1,6 +1,6 @@
 var username = localStorage.getItem('username');
 if (username == null) {
-    window.location = "/";
+    window.location = "/werewolf";
 }
 $(document).ready(function () {
     var socket = io.connect("");
@@ -141,8 +141,6 @@ $(document).ready(function () {
         // first check if the removed player was a werewolf, if so, decrement number of werewolves
         // then check to see if the removed user was under cupids influence, if so remove both. If player removed is the hunter give them a chance to kill 
         // a perosn of their choosing.
-        console.log(werewolves)
-        console.log(roles[_username])
         if (roles[_username] == "Werewolf") {
             remove_user(werewolves, _username)
         } else if (roles[_username] == "Hunter" && _username == username && day) {// if the killed person is a hunter and the client is the hunter
@@ -221,6 +219,7 @@ $(document).ready(function () {
         document.getElementById("death").style.display = "none";
 
         roles = data['role_dict']
+        console.log(data)
         werewolves = data['werewolves']
         game_users = [...users]
         sunset()
