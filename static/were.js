@@ -216,7 +216,7 @@ $(document).ready(function () {
         reset()
         cupid_votes = [];
         removed_roles = []; // only needs to be reset on new game not new round
-        document.getElementById("death").style.display = "none";
+        
 
         roles = data['role_dict']
         werewolves = data['werewolves']
@@ -683,8 +683,11 @@ $(document).ready(function () {
 
     function game_over(content = "") {
         document.getElementById("online_div").style.display = ""
+        document.getElementById("results_div").style.display = ""
         document.getElementById('vote_table').innerHTML = "";
         document.getElementById("game_div_title").innerHTML = "Game Over!"
+        document.getElementById("death").style.display = "none";
+        game_roles()
         if (werewolves.length < 1) {
             document.getElementById("game_div_body").innerHTML = "Congrats, all werewolves eliminated<br>";
         } else {
@@ -693,6 +696,35 @@ $(document).ready(function () {
             } else {
                 document.getElementById("game_div_body").innerHTML = "The werewolves have taken over<br>";
             }
+        }
+    }
+
+
+    function game_roles() {
+        document.getElementById('results_table').innerHTML = "";
+        for (var j = 0; j < Object.keys(roles).length; j++) {
+
+            if (j % 5 == 0) {
+                row = document.createElement("tr");
+                row.setAttribute('id', 'row' + (j / 5).toString())
+                document.getElementById('results_table').appendChild(row);
+            }
+            b = document.createElement("td");
+            b.setAttribute("class", "results hoverable")
+            b.innerHTML = '<br>' + Object.keys(roles)[j];
+            b.innerHTML += "<input type='hidden' value='" + Object.keys(roles)[j] + "'>";
+            b.addEventListener("click", function (e) {
+                // insert the value from the autocomplete text field:
+                value = this.getElementsByTagName("input")[0].value;
+                document.getElementById("user_role").innerHTML = roles[value]
+                var cells = document.getElementsByClassName("results")
+                for (var i = 0; i < cells.length; i++) {
+                    cells[i].style.backgroundColor = ""
+                }
+                this.style.backgroundColor = "rgb(53, 237, 250)"
+            });
+            document.getElementById('row' + Math.floor(j / 5).toString()).appendChild(b);
+
         }
     }
 

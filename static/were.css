@@ -13,6 +13,15 @@
   font-size: xx-large;
 }
 
+#results_table td {
+  text-align: center;
+  vertical-align: top;
+}
+
+.hoverable:hover {
+  background: rgb(53, 237, 250);
+}
+
 td{
   font-weight: bolder;
   vertical-align: middle; 
@@ -93,7 +102,7 @@ body {
   font-size: xx-large;
 }
 
-#init, #game_select{
+#init, #game_select,#user_role{
   margin-left: auto;
   margin-right: auto;
   text-align: center;
