@@ -222,6 +222,7 @@ $(document).ready(function () {
         werewolves = data['werewolves']
         game_users = [...users]
         sunset()
+        document.getElementById('results_table').innerHTML = "";
         document.getElementById('vote_table').innerHTML = "";
         document.getElementById("online_div").style.display = "none";
         document.getElementById("game_div").style.display = "none";
@@ -721,7 +722,7 @@ $(document).ready(function () {
                 for (var i = 0; i < cells.length; i++) {
                     cells[i].style.backgroundColor = ""
                 }
-                this.style.backgroundColor = "rgb(53, 237, 250)"
+                this.style.backgroundColor = "rgb(211,211,211)"
             });
             document.getElementById('row' + Math.floor(j / 5).toString()).appendChild(b);
 
