@@ -8,14 +8,7 @@
 
 
 		$('#button').on('click', function () {
-			if ($('#username').val().length <= 15 && 1 <= $('#username').val().length) {
-				localStorage.setItem('username', $('#username').val());
-				$('#username').val('');
-				window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/werewolf/'+ $('#route').val());
-			} else {
-				alert("Username must be between 1 and 15 characters")
-				$('#username').val('');
-			}
+			window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/werewolf/' + $('#route').val());
 		});
 
 	});
@@ -31,18 +24,18 @@
 	</div>
 </section>
 
-<div id="init">
+<div id="init" class="centered">
 	<p>Play Werewolf online across multiple devices. To create a new game or join an existing game,
 		enter a game identifier and click 'GO'.</p>
-	<input type="text" id="route" data-lpignore="true" maxlength="20" placeholder="Game Code" value={{ route }} style="height: 300%; font-size: 250%;"><br>
-	<input type="text" id="username" data-lpignore="true" maxlength="15" placeholder="Username" style="height: 300%; font-size: 250%;">
-	
+	<input type="text" id="route" data-lpignore="true" maxlength="20" placeholder="Game Code" value={{ route }}
+		style="height: 300%; font-size: 250%;"><br>
+
 	<p>
 		<button class="btn btn-success" type="button" data-toggle="collapse" data-target="#HTP" aria-expanded="false"
 			aria-controls="HTP" style="margin-right: 30px;margin-top: 10px;">How to Play</button>
 		<button class="btn btn-success" type="button" data-toggle="collapse" data-target="#roles" aria-expanded="false"
 			aria-controls="roles" style="margin-right: 30px; margin-top: 10px;">Roles</button>
-			<button id="button" class="btn btn-secondary" style="margin-top: 10px;">GO</button>
+		<button id="button" class="btn btn-secondary" style="margin-top: 10px;">GO</button>
 	</p>
 </div>
 <div class="collapse" id="HTP">
@@ -62,8 +55,8 @@
 <div class="collapse" id="roles">
 	<div class="row">
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Werewolf</h3><img src="{{ url_for('static', filename='images/werewolf.png') }}" class="card-img-top"
-				alt="werewolf" height="350px">
+			<h3 class="card-title">Werewolf</h3><img src="{{ url_for('static', filename='images/werewolf.png') }}"
+				class="card-img-top" alt="werewolf" height="350px">
 			<div class="card-body">Typically werewolves are outnumbered by villagers 2 to 1. So a game of 6 players
 				would have 2 werewolves.
 				The goal of the werewolves is to decide together on one villager to secretly kill off during the
@@ -77,8 +70,8 @@
 				game. </div>
 		</div>
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Villager</h3><img src="{{ url_for('static', filename='images/villager.png') }}" class="card-img-top"
-				alt="villager" height="350px">
+			<h3 class="card-title">Villager</h3><img src="{{ url_for('static', filename='images/villager.png') }}"
+				class="card-img-top" alt="villager" height="350px">
 			<div class="card-body">The most commonplace role, a simple Villager, spends the game trying to root out
 				who
 				they believe the werewolves (and other villagers) are. While they do not need to lie, the role
@@ -90,7 +83,8 @@
 				all depends on the people you're playing with, and how well you know them. </div>
 		</div>
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Seer</h3><img src="{{ url_for('static', filename='images/seer.png') }}" class="card-img-top" alt="seer" height="350px">
+			<h3 class="card-title">Seer</h3><img src="{{ url_for('static', filename='images/seer.png') }}"
+				class="card-img-top" alt="seer" height="350px">
 			<div class="card-body">
 				The Seer, while first and foremost a villager, has the added ability to
 				see one of their fellow players role each night.
@@ -99,7 +93,8 @@
 				or to their advantage during the day. The strategy here is up to you. </div>
 		</div>
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Doctor</h3><img src="{{ url_for('static', filename='images/doctor.png') }}" class="card-img-top" alt="doctor" height="350px">
+			<h3 class="card-title">Doctor</h3><img src="{{ url_for('static', filename='images/doctor.png') }}"
+				class="card-img-top" alt="doctor" height="350px">
 			<div class="card-body">Also a villager, the Doctor has the ability to heal themselves or another
 				villager when called awake during the night. Should they heal themselves, then will
 				be safe from being killed by the werewolves, or should they want to prove themselves the Doctor or
@@ -110,7 +105,8 @@
 
 		<!-- <div class="row"> -->
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Cupid</h3><img src="{{ url_for('static', filename='images/cupid.png') }}" class="card-img-top" alt="cupid" height="350px">
+			<h3 class="card-title">Cupid</h3><img src="{{ url_for('static', filename='images/cupid.png') }}"
+				class="card-img-top" alt="cupid" height="350px">
 			<div class="card-body">Cupid does not actually count as a special role, but they are aligned with the
 				Villagers. The Cupid is awoken on the first day only. They then
 				pick 2 players to be lovers. These 2 players are then awoken and see each other. For the rest of the
@@ -118,7 +114,8 @@
 				Cupid plays the remainder of the game as a normal Villager. </div>
 		</div>
 		<div class="card" style="width: 25rem;">
-			<h3 class="card-title">Hunter</h3><img src="{{ url_for('static', filename='images/hunter.png') }}" class="card-img-top" alt="hunter" height="350px">
+			<h3 class="card-title">Hunter</h3><img src="{{ url_for('static', filename='images/hunter.png') }}"
+				class="card-img-top" alt="hunter" height="350px">
 			<div class="card-body">The Hunter is a villager, who when killed (during the day) takes their bow and
 				arrow, and kills one other person with their dying breath. The target must be chosen quickly and
 				without intervention from the rest of the village. Any protection the target may have received

@@ -102,7 +102,7 @@ body {
   font-size: xx-large;
 }
 
-#init, #game_select,#user_role{
+.centered{
   margin-left: auto;
   margin-right: auto;
   text-align: center;

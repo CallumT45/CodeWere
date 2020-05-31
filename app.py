@@ -67,13 +67,19 @@ def remove_player(data):
     room = data['channel']
     emit('remove_player',data['username'], room=room)
 
+@socketio.on("remove_user")
+def remove_user(data):
+    room = data['channel']
+    emit('remove_user',data['username'], room=room)
+
+
 @socketio.on('join')
 def on_join(data):
     room = data['channel']
     join_room(room)
 
     clients[request.sid] = room
-    emit('new_user', data, room=room)
+    emit('update_new_user', room=room)
 
 @socketio.on('update_users')
 def update_users(data):
@@ -81,10 +87,6 @@ def update_users(data):
     users = data['user_list']
     emit('new_user_list', users, room=room)
 
-@socketio.on('new_username')
-def new_username(data):
-    room = data['channel']
-    emit('new_username_2', data, room=room)
 
 @socketio.on('disconnect')
 def disconnect():

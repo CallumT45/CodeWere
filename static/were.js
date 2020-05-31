@@ -1,10 +1,10 @@
-var username = localStorage.getItem('username');
-if (username == null) {
-    window.location = "/werewolf";
-}
+// var username = localStorage.getItem('username');
+// if (username == null) {
+//     window.location = "/werewolf";
+// }
 $(document).ready(function () {
     var socket = io.connect("");
-
+    var username = undefined;
     var users = [];
     var votes = [];
     var roles = [];
@@ -27,18 +27,20 @@ $(document).ready(function () {
         socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
     });
 
-    socket.on('new_user', function (data) {
-        if (!check_username(users, data['username'])) {
+    $('#usernameButton').on('click', function () {
+        if (!check_username(users, $('#usernameInput').val())) {
             obj = {
-                'username': data['username'],
-                'id': data['id']
+                'username': $('#usernameInput').val(),
+                'id': socket.id
             }
+            localStorage.setItem('username', $('#usernameInput').val());
+            username = $('#usernameInput').val()
+            $('#usernameInput').val('');
             users.push(obj);
+            users.sort((a, b) => (a.username > b.username) ? 1 : -1)
+            $('#setUsername').css("display", "none")
         } else {
-            var arr = (data['username'].match(/\d+$/) || []);
-            var num = arr.length < 1 ? 0 : arr.pop()
-            var new_username = data['username'].slice(0, arr.index) + ++num
-            socket.emit('new_username', { 'channel': window.location.pathname.substr(1), 'old_username': data['username'], 'new_username': new_username, 'id': data['id'] })
+            alert("Username already taken")
         }
         socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
     });
@@ -51,27 +53,37 @@ $(document).ready(function () {
         }
         $("#online").empty();
         for (var i = 0; i < users.length; i++) {
-            $("#online").append('<li class="list-group-item">' + users[i].username + '</li>');
+            $("#online").append('<li class="list-group-item">' + (users[i].username == username? users[i].username + " &#11013": users[i].username)  + '</li>');
         }
     });
 
     socket.on('new_user_list', function (data) {
         if (users.length < data.length) {
             users = data
+            if (localStorage.getItem('username')) {
+                $('#setUsername').css("display", "none")
+                  if (!check_username(users, localStorage.getItem('username'))) {
+                    obj = {
+                        'username': localStorage.getItem('username'),
+                        'id': socket.id
+                    }
+                    username = localStorage.getItem('username')
+                    users.push(obj);
+                    users.sort((a, b) => (a.username > b.username) ? 1 : -1)
+                }
+                socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
+            }
         }
         $("#online").empty();
         for (var i = 0; i < users.length; i++) {
-            $("#online").append('<li class="list-group-item">' + users[i].username + '</li>');
+            $("#online").append('<li class="list-group-item">' + (users[i].username == username? users[i].username + " &#11013": users[i].username)  + '</li>');
         }
     });
 
-    socket.on('new_username_2', function (data) {
-        if (data['old_username'] == username && socket.id == data['id']) {
-            localStorage.setItem('username', data['new_username']);
-            username = data['new_username']
-            socket.emit('join', { 'channel': window.location.pathname.substr(1), 'username': username, 'id': socket.id });
-        }
+    socket.on('update_new_user', function (data) {
+        socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
     });
+
 
     socket.on('start_new_round', function (data) {
         if (data == username) {
@@ -133,6 +145,18 @@ $(document).ready(function () {
                     game_over()
                 }
             }
+        }
+    });
+
+    socket.on('remove_user', function (_username) {
+        for (var i = 0; i < users.length; i++) {
+            if (users[i].username == _username) {
+                users.splice(i, 1);
+            }
+        }
+        $("#online").empty();
+        for (var i = 0; i < users.length; i++) {
+            $("#online").append('<li class="list-group-item">' + (users[i].username == username? users[i].username + " &#11013": users[i].username)  + '</li>');
         }
     });
 
@@ -216,7 +240,7 @@ $(document).ready(function () {
         reset()
         cupid_votes = [];
         removed_roles = []; // only needs to be reset on new game not new round
-        
+
 
         roles = data['role_dict']
         werewolves = data['werewolves']
@@ -746,7 +770,16 @@ $(document).ready(function () {
 
     }
 
+    $('#userLink').on('click', function () {
+        $('#setUsername').css("display", "")
+        socket.emit('remove_user', { 'username': username, 'channel': window.location.pathname.substr(1) });
+    });
+
+
     document.getElementById('game_url').innerHTML = window.location.pathname.split("/")[2];
+
+
+
 });
 
 

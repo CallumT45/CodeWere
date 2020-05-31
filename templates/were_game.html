@@ -77,7 +77,7 @@
 
 		<div id="results_div" style="display: none;">
 			<table id="results_table" class="table"></table>
-			<div id="user_role">Click on a name</div>
+			<div id="user_role" class="centered">Click on a name</div>
 		</div>
 
 		<div class="card-header" id="username"></div>
@@ -112,8 +112,16 @@
 		<small class="text-muted">
 			<span>Send this code to friends:</span>
 			<a class="ml-2" style="color: rgb(8,76,85)" id="copyLink"><span id="game_url"></span></a><br>
-			<a class="ml-2" style="color: rgb(8,76,85)" id="userLink" href="/werewolf">Change Username</a>
+			<a class="ml-2" style="color: rgb(8,76,85)" id="userLink">Change Username</a>
 		</small>
+		<br>
+		<div class="input-group centered" id="setUsername" style="width: 55%;">
+			<input type="text" class="form-control" id="usernameInput" data-lpignore="true" minlength="1" maxlength="15" placeholder="Username" style="width: 70%;height: 40px;">
+
+			  <button class="btn btn-secondary" id="usernameButton" type="button" style="height: 40px;"><span style="vertical-align: middle;">Set</span></button>
+
+		  </div>
+
 	</div>
 </div>
 
