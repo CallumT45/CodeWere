@@ -1,0 +1,55 @@
+{% extends "layout.html" %} {% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='were.css') }}">
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+
+		$('#button').on('click', function () {
+			window.location.replace(location.protocol + '//' + document.domain + ':' + location.port + '/cah/' + $('#route').val());
+		});
+
+	});
+</script>
+
+
+
+<title>Cards Against Humanity</title>
+<section class="jumbotron text-center">
+	<div class="container">
+		<h1>Cards Against Humanity</h1>
+		<p>A basic web app developed by Callum Terry.</p>
+	</div>
+</section>
+
+<div id="init" class="centered">
+	<p>Play Cards Against Humanity online across multiple devices. To create a new game or join an existing game,
+		enter a game identifier and click 'GO'.</p>
+	<input type="text" id="route" data-lpignore="true" maxlength="20" placeholder="Game Code" value={{ route }}
+		style="height: 300%; font-size: 250%;"><br>
+
+	<p>
+		<button class="btn btn-success" type="button" data-toggle="collapse" data-target="#HTP" aria-expanded="false"
+			aria-controls="HTP" style="margin-right: 30px;margin-top: 10px;">How to Play</button>
+		<button id="button" class="btn btn-secondary" style="margin-top: 10px;">GO</button>
+	</p>
+</div>
+
+<div class="collapse" id="HTP">
+	<div class="card card-body">
+		Cards Against Humanity is a party game for horrible people. Unlike most of the party games you've played before, Cards Against Humanity is as despicable and awkward as you and your friends.
+		<br>
+		The game is simple. Each round, one player asks a question from a black card, and everyone else answers with their funniest white card.
+	</div>
+</div>
+
+
+
+
+
+
+
+
+{% endblock content %}

@@ -1,0 +1,80 @@
+{% extends "layout.html" %} {% block content %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="{{ url_for('static', filename='cah.js') }}"></script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='cah.css') }}">
+
+
+<div class="row justify-content-center" id="setup">
+    <div class="card" id="cast_groups">
+        <ol id="selectable" class="cast_groups">
+            <li class="ui-widget-content">Official</li>
+            <li class="ui-widget-content">Third Party</li>
+            <li class="ui-widget-content">Stand Alone</li>
+            <li class="ui-widget-content">PAX</li>
+        </ol>
+        <br>
+        <div class="input-group">
+            <input type="number" min="1" max="100" id="maxScore" placeholder="Enter the max score" id="highScore"
+                class="form-control" aria-label="Percentage of Blank Cards" />
+        </div>
+
+        <div class="input-group">
+            <input type="number" min="0" max="100" placeholder="Percentage of Blank Cards" id="blankPerc"
+                class="form-control" aria-label="Percentage of Blank Cards" />
+        </div>
+
+
+
+        <button id="go" class="btn btn-success" style="margin-top: 10px;">Go</button>
+    </div>
+    <div class="card" id="casts">
+
+        <ol id="selectable" class="casts">
+        </ol>
+        <button id="choose" class="btn btn-secondary" style="margin-top: 10px;">Choose</button>
+    </div>
+    <div class="card" id="chosen_casts">
+        <ol id="selectable" class="chosen">
+            <li class="ui-widget-content"></li>
+        </ol>
+        <button id="remove" class="btn btn-secondary" style="margin-top: 10px;">Remove</button>
+
+    </div>
+
+
+</div>
+
+<div id="game" style="display: none;">
+    <div id="black_card_place">
+    </div>
+
+    <div class="row" id="player_cards">
+    </div>
+
+    <div class="row" id="hand">
+    </div>
+
+    <div id='buttons'>
+        <button id="submit" class="btn btn-secondary" style="margin-top: 10px;">Submit</button>
+        <button id="show" class="btn btn-secondary" style="margin-top: 10px;">Show</button>
+        <button id="nextRound" class="btn btn-secondary" style="margin-top: 10px;">Next Round</button>
+        <button id="confirm" class="btn btn-secondary" style="margin-top: 10px;">Confirm</button>
+    </div>
+</div>
+
+
+<div id="gameInfo" class="centered">
+    <div id="scoreboard" class="row justify-content-center">
+    </div>
+
+    <div class="input-group centered" id="setUsername" style="width: 45%;margin-left: auto;margin-right: auto;">
+        <input type="text" class="form-control" id="usernameInput" data-lpignore="true" minlength="1" maxlength="15"
+            placeholder="Username">
+        <div class="input-group-append">
+            <button class="btn btn-secondary" id="usernameButton">Set</button>
+        </div>
+    </div>
+</div>
+{% endblock content %}
