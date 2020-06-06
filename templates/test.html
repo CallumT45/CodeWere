@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-
+<link rel="stylesheet" type="text/css" href="../static/were.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 
 
-
 <script type="text/javascript">
-  var name = "peter021a"
-  var arr = (name.match(/\d+$/) || []);
-  
-  var num = arr.length < 1 ? 0 : arr.pop()
-  console.log(name.slice(0,arr.index) + ++num)
+  var users = [{ "username":"David", "role":"Werewolf"},
+              { "username":"Callum", "role":"Seer"},
+              { "username":"Jason", "role":"Cupid"},
+              { "username":"Chris", "role":"Doctor"},
+              { "username":"Loyld", "role":"Villager"},
+              { "username":"Meg", "role":"Loser"}]
 
 
 
+ console.log(users)
+ users.sort((a, b) => (a.username > b.username) ? 1 : -1)
+
+console.log(users)
 </script>
