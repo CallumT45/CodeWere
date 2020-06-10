@@ -24,6 +24,7 @@ $(document).ready(function () {
     var timer = undefined
     var username = undefined
     var round_winner = null
+    var turn_timer = 80 //seconds
 
     $("#selectable").selectable().children().first().addClass('ui-selected');
     for (var i = 0; i < CAH.length; i++) {
@@ -172,6 +173,8 @@ $(document).ready(function () {
         $('#confirm').css("display", "none")
         $('#submit').css('display', "")
         $('#wait').css('display', "none")
+        $('#progressbar').css("display", "")
+        updateProgress()
         if (checkCzar(username)) {
             $('#hand').css("display", "none")
             $('#submit').css('display', "none")
@@ -238,7 +241,7 @@ $(document).ready(function () {
             socket.emit('white_card', { 'casts': game_settings['game_casts'] });
             socket.emit('white_card', { 'casts': game_settings['game_casts'] });
         }
-        timer = setTimeout(show_submitted, 80000, 0)
+        timer = setTimeout(show_submitted, turn_timer*1000, 0)
 
     });
 
@@ -260,7 +263,7 @@ $(document).ready(function () {
         })
         document.getElementById("hand").appendChild(card)
     });
-
+    var ix = 100
     socket.on("submitted_card", function (data) {
         alreadyVoted.push(data[0].username)
         drawScore()
@@ -268,6 +271,8 @@ $(document).ready(function () {
         if (submitted_cards.length == users.length - 1 - players_joined_midround) {
             clearTimeout(timer)
             show_submitted(0)
+            $('#progressbar').css("display", "none")
+            ix = 1
         }
     });
 
@@ -275,8 +280,6 @@ $(document).ready(function () {
     socket.on("show_next_card", function (data) {
         temp += 1
         show_submitted(temp)
-        console.log(temp)
-        console.log(submitted_cards.length - 1)
         if (temp >= submitted_cards.length - 1) {// if only one card submitted this would break, should be fixed now
             $('#show').css("display", "none")
             if (checkCzar(username)) {
@@ -316,6 +319,8 @@ $(document).ready(function () {
                 numOfCards += 1;
             }
         }
+        $('#progressbar').css("display", "")
+        updateProgress()
     });
 
     function white_card(text, cast, text2 = "", text3 = "") {
@@ -437,8 +442,6 @@ $(document).ready(function () {
 
 
     function show_submitted(card_index) {
-        console.log(submitted_cards)
-        console.log("test")
         alreadyVoted = []
         drawScore()
         $('#submit').css("display", "none")
@@ -448,7 +451,7 @@ $(document).ready(function () {
             var card = white_card(submitted_cards[card_index][0]['text'], submitted_cards[card_index].length == 1 ? submitted_cards[card_index][0]['Set'] : "", submitted_cards[card_index].length > 1 ? submitted_cards[card_index][1]['text'] : "", submitted_cards[card_index].length > 2 ? submitted_cards[card_index][2]['text'] : "")
             card.innerHTML += "<input type='hidden' value='" + submitted_cards[card_index][0]['username'] + "'>";
             if (checkCzar(username)) {
-                $('#show').css("display", "")
+                submitted_cards.length > 1 ? $('#show').css("display", ""): $('#confirm').css("display", "")
                 card.addEventListener("click", function () {
                     var value = this.getElementsByTagName("input")[0].value;
                     $.each($('#player_cards .card'), function (index, value) {
@@ -606,7 +609,6 @@ $(document).ready(function () {
                         'czar': false
                     }
                     username = localStorage.getItem('cah_username')
-                    console.log(username + " from storage")
                     users.push(obj);
 
                 }
@@ -644,10 +646,22 @@ $(document).ready(function () {
 
     //Username System end
 
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    var updateLock = true;
+
+    async function updateProgress() {
+        if (updateLock) {
+            updateLock = false;
+
+            for (ix = 100; ix >= 0; ix--) {
+                document.getElementById("innerBar").style.width = ix + "%";
+                await sleep(turn_timer*10)
+            }
+            updateLock = true;
+        }
+
+    }
+
 });
-
-// Previous game winner div
-// You are card czar div
-// implement ai, will need new socket request
-
-// fix issue with local storage not being set, ie user list issue
