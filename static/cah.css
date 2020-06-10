@@ -216,11 +216,12 @@ body {
 }
 
 #usernameInput{
-    width: auto;
+    width: 50%;
+
 }
 
 #usernameButton{
-    width: 100%;
+    width: 50%;
 }
 #HTP{
     width: 30%;

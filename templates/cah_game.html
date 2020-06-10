@@ -33,7 +33,7 @@
 
         <ol id="selectable" class="casts">
         </ol>
-        <button id="choose" class="btn btn-secondary" style="margin-top: 10px;">Choose</button>
+        <button id="choose" class="btn btn-info" style="margin-top: 10px;">Choose</button>
     </div>
     <div class="card" id="chosen_casts">
         <ol id="selectable" class="chosen">
@@ -61,6 +61,7 @@
         <button id="show" class="btn btn-secondary" style="margin-top: 10px;">Show</button>
         <button id="nextRound" class="btn btn-secondary" style="margin-top: 10px;">Next Round</button>
         <button id="confirm" class="btn btn-secondary" style="margin-top: 10px;">Confirm</button>
+        <button id="wait" class="btn btn-warning" style="margin-top: 10px;">Please wait until next round</button>
     </div>
 </div>
 
@@ -69,12 +70,11 @@
     <div id="scoreboard" class="row justify-content-center">
     </div>
 
-    <div class="input-group centered" id="setUsername" style="width: 45%;margin-left: auto;margin-right: auto;">
-        <input type="text" class="form-control" id="usernameInput" data-lpignore="true" minlength="1" maxlength="15"
-            placeholder="Username">
-        <div class="input-group-append">
-            <button class="btn btn-secondary" id="usernameButton">Set</button>
-        </div>
+    <div class="centered" id="setUsername">
+        <input type="text" class="form-control centered" id="usernameInput" data-lpignore="true" minlength="1" maxlength="15" placeholder="Username">
+        <!-- <div class="input-group-append"> -->
+            <button class="btn btn-primary" id="usernameButton">Set</button>
+        <!-- </div> -->
     </div>
 </div>
 {% endblock content %}

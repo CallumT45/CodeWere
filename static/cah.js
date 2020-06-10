@@ -1,7 +1,7 @@
 $(document).ready(function () {
     var socket = io.connect("");
     var game_settings = undefined;
-    var choosen_cards = []
+    var chosen_cards = []
     var submitted_cards = []
     var cards_needed = 0
     // =================================================================================================== \\
@@ -170,10 +170,12 @@ $(document).ready(function () {
         $('#game').css("display", "")
         $('#nextRound').css("display", "none")
         $('#confirm').css("display", "none")
+        $('#submit').css('display', "")
+        $('#wait').css('display', "none")
         if (checkCzar(username)) {
             $('#hand').css("display", "none")
             $('#submit').css('display', "none")
-            
+
         } else {
             $('#hand').css("display", "")
         }
@@ -186,6 +188,39 @@ $(document).ready(function () {
         }
 
     });
+
+
+
+    socket.on('update_game_state', function (data) {
+        if (game_settings == null) {
+            game_settings = data['game_settings']
+            for (var i = 0 ; i < users.length; i++){
+                users[i].czar = false;
+            }
+            czar_index = data['czar_index']
+            startScreen = false
+            drawScore()
+            $('#setup').css("display", "none")
+            $('#game').css("display", "")
+            $('#nextRound').css("display", "none")
+            $('#confirm').css("display", "none")
+            $('#submit').css('display', "none")
+            $('#wait').css('display', "")
+            if (checkCzar(username)) {
+                $('#hand').css("display", "none")
+                $('#submit').css('display', "none")
+
+            } else {
+                $('#hand').css("display", "")
+            }
+            $('#show').css("display", "none")
+            for (var i = 0; i < 10; i++) {
+                socket.emit('white_card', { 'casts': game_settings['game_casts'] });
+            }
+        }
+        console.log(game_settings)
+    });
+
     // Game Setup end
     // =================================================================================================== \\
     // Main Game start
@@ -203,7 +238,7 @@ $(document).ready(function () {
             socket.emit('white_card', { 'casts': game_settings['game_casts'] });
             socket.emit('white_card', { 'casts': game_settings['game_casts'] });
         }
-        timer = setTimeout(show_submitted, 60000, 0)
+        timer = setTimeout(show_submitted, 80000, 0)
 
     });
 
@@ -214,11 +249,11 @@ $(document).ready(function () {
         card.addEventListener("click", function () {
             var value = this.getElementsByTagName("input")[0].value;
             var cast = this.getElementsByTagName("input")[1].value;
-            if (check_obj(choosen_cards, value)) {
-                remove_card(choosen_cards, value);
+            if (check_obj(chosen_cards, value)) {
+                remove_card(chosen_cards, value);
 
             } else {
-                choosen_cards.push({ "text": value, "username": username, "element": this, "Set": cast })
+                chosen_cards.push({ "text": value, "username": username, "element": this, "Set": cast })
             }
             this.classList.toggle("selected");
 
@@ -230,7 +265,7 @@ $(document).ready(function () {
         alreadyVoted.push(data[0].username)
         drawScore()
         submitted_cards.push(data)
-        if (submitted_cards.length == users.length - 1) {
+        if (submitted_cards.length == users.length - 1 - players_joined_midround) {
             clearTimeout(timer)
             show_submitted(0)
         }
@@ -240,12 +275,14 @@ $(document).ready(function () {
     socket.on("show_next_card", function (data) {
         temp += 1
         show_submitted(temp)
-        if (temp == submitted_cards.length - 1) {
+        console.log(temp)
+        console.log(submitted_cards.length - 1)
+        if (temp >= submitted_cards.length - 1) {// if only one card submitted this would break, should be fixed now
             $('#show').css("display", "none")
             if (checkCzar(username)) {
                 $('#confirm').css("display", "")
             }
-            
+
         }
     });
 
@@ -253,11 +290,12 @@ $(document).ready(function () {
         nextCzar()
         temp = 0
         round_winner = null
-
+        players_joined_midround = 0
         $('#player_cards').empty()
         $('#submit').css('display', "")
         $('#nextRound').css("display", "none")
         $('#confirm').css("display", "none")
+        $('#wait').css('display', "none")
 
         givePoint(data)
         var winner = findWinner(game_settings['maxScore'])
@@ -313,11 +351,11 @@ $(document).ready(function () {
         card.addEventListener("click", function () {
             var value = this.getElementsByTagName("input")[0].value;
             if (value) {
-                if (check_obj(choosen_cards, value)) {
-                    remove_card(choosen_cards, value);
+                if (check_obj(chosen_cards, value)) {
+                    remove_card(chosen_cards, value);
 
                 } else {
-                    choosen_cards.push({ "text": value, "username": username, "element": this, "Set": "" })
+                    chosen_cards.push({ "text": value, "username": username, "element": this, "Set": "" })
                 }
                 this.classList.toggle("selected");
             }
@@ -351,8 +389,8 @@ $(document).ready(function () {
         }
     }
     function remove_card_from_hand() {
-        for (var j = 0; j < choosen_cards.length; j++) {
-            child = choosen_cards[j].element
+        for (var j = 0; j < chosen_cards.length; j++) {
+            child = chosen_cards[j].element
             child.parentNode.removeChild(child);
         }
     }
@@ -367,10 +405,10 @@ $(document).ready(function () {
 
 
     $('#submit').on('click', function () {
-        if (choosen_cards.length == cards_needed) {
-            socket.emit('submit_card', { 'channel': window.location.pathname.substr(1), 'cards': choosen_cards });
+        if (chosen_cards.length == cards_needed) {
+            socket.emit('submit_card', { 'channel': window.location.pathname.substr(1), 'cards': chosen_cards });
             remove_card_from_hand()
-            choosen_cards = []
+            chosen_cards = []
             $('#submit').css('display', "none")
         } else {
             alert("Incorrect number of cards selected")
@@ -396,9 +434,11 @@ $(document).ready(function () {
             alert("Please pick a winner!")
         }
     });
-    
-    
+
+
     function show_submitted(card_index) {
+        console.log(submitted_cards)
+        console.log("test")
         alreadyVoted = []
         drawScore()
         $('#submit').css("display", "none")
@@ -411,9 +451,9 @@ $(document).ready(function () {
                 $('#show').css("display", "")
                 card.addEventListener("click", function () {
                     var value = this.getElementsByTagName("input")[0].value;
-                    $.each($('#player_cards .card'), function(index, value){
+                    $.each($('#player_cards .card'), function (index, value) {
                         value.classList.remove("selected")
-                    });   
+                    });
                     round_winner = value
                     this.classList.add("selected");
 
@@ -451,7 +491,7 @@ $(document).ready(function () {
         //Display game over message
         // Bring back game set up
         // Cancel new blackcard
-        // reset varaiables
+        // reset variables
         // reset scoreboard
 
     }
@@ -461,7 +501,7 @@ $(document).ready(function () {
     czar_index = 0;
     var alreadyVoted = []
     var startScreen = true
-
+    var players_joined_midround = 0
     var users = []
 
 
@@ -587,6 +627,11 @@ $(document).ready(function () {
 
     socket.on('update_new_user', function (data) {
         socket.emit('update_users', { 'channel': window.location.pathname.substr(1), 'user_list': users })
+        if (!startScreen) {
+            // if someone joins mid game then do this
+            socket.emit('update_game_state', { 'channel': window.location.pathname.substr(1), 'game_settings': game_settings, 'czar_index': czar_index })
+            players_joined_midround += 1
+        }
     });
 
     function check_username(obj, name) {
@@ -601,7 +646,7 @@ $(document).ready(function () {
 
 });
 
-// Prvious game winner div
+// Previous game winner div
 // You are card czar div
 // implement ai, will need new socket request
 

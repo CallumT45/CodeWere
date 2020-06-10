@@ -159,6 +159,12 @@ def show_next_card(data):
     room = data['channel']
     emit('show_next_card', room=room)
 
+@socketio.on("update_game_state")
+def update_game_state(data):
+    room = data['channel']
+    emit('update_game_state', data, room=room)
+    
+
 # =====================================================================================================
 
 
