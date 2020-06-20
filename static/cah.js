@@ -269,6 +269,7 @@ $(document).ready(function () {
         alreadyVoted.push(data[0].username)
         drawScore()
         submitted_cards.push(data)
+        shuffle(submitted_cards)
         if (submitted_cards.length == users.length - 1 - players_joined_midround) {
             clearTimeout(timer)
             show_submitted(0)
@@ -289,6 +290,17 @@ $(document).ready(function () {
             }
 
         }
+    });
+
+    socket.on("czar_select", function (data) {
+        $.each($('#player_cards .card'), function (index, value) {
+            if(index == data){
+                value.classList.add("selected");
+            }else{
+                value.classList.remove("selected");
+            }
+        });
+
     });
 
     socket.on("start_new_round_cah", function (data) {
@@ -444,7 +456,7 @@ $(document).ready(function () {
         }
     });
 
-
+    var elements = []
     function show_submitted(card_index) {
         alreadyVoted = []
         drawScore()
@@ -454,15 +466,18 @@ $(document).ready(function () {
 
             var card = white_card(submitted_cards[card_index][0]['text'], submitted_cards[card_index].length == 1 ? submitted_cards[card_index][0]['Set'] : "", submitted_cards[card_index].length > 1 ? submitted_cards[card_index][1]['text'] : "", submitted_cards[card_index].length > 2 ? submitted_cards[card_index][2]['text'] : "")
             card.innerHTML += "<input type='hidden' value='" + submitted_cards[card_index][0]['username'] + "'>";
+            card.innerHTML += "<input type='hidden' value='" + card_index + "'>";
             if (checkCzar(username)) {
                 submitted_cards.length > 1 ? $('#show').css("display", ""): $('#confirm').css("display", "")
                 card.addEventListener("click", function () {
-                    var value = this.getElementsByTagName("input")[0].value;
-                    $.each($('#player_cards .card'), function (index, value) {
-                        value.classList.remove("selected")
-                    });
-                    round_winner = value
-                    this.classList.add("selected");
+                    var name = this.getElementsByTagName("input")[0].value;
+                    var num = this.getElementsByTagName("input")[1].value;
+                    // $.each($('#player_cards .card'), function (index, value) {
+                    //     value.classList.remove("selected")
+                    // });
+                    socket.emit('czar_select', {'num': num, 'channel': window.location.pathname.substr(1)});
+                    round_winner = name
+                    // this.classList.add("selected");
 
                 })
             }
@@ -646,6 +661,14 @@ $(document).ready(function () {
                 return true
             }
         return false
+    }
+
+    function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
     }
 
     //Username System end

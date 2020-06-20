@@ -164,6 +164,11 @@ def update_game_state(data):
     room = data['channel']
     emit('update_game_state', data, room=room)
     
+@socketio.on("czar_select")
+def czar_select(data):
+    room = data['channel']
+    emit('czar_select', data['num'], room=room)
+
 
 # =====================================================================================================
 
