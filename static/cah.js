@@ -178,6 +178,7 @@ $(document).ready(function () {
         if (checkCzar(username)) {
             $('#hand').css("display", "none")
             $('#submit').css('display', "none")
+            $('#czar').css('display', "")
 
         } else {
             $('#hand').css("display", "")
@@ -284,6 +285,7 @@ $(document).ready(function () {
             $('#show').css("display", "none")
             if (checkCzar(username)) {
                 $('#confirm').css("display", "")
+                $('#czar').css('display', "none")
             }
 
         }
@@ -311,10 +313,12 @@ $(document).ready(function () {
             } else {
                 $('#hand').css("display", "none")
                 $('#submit').css('display', "none")
+                $('#czar').css('display', "")
+                
             }
             $('#show').css("display", "none")
             numOfCards = $("#hand .card").length
-            while (numOfCards <= 10) {
+            while (numOfCards < 10) {
                 draw_white()
                 numOfCards += 1;
             }
