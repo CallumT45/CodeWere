@@ -17,6 +17,9 @@ In the latest version players can now refresh in CAH, a feature that would previ
 The app is hosted on heroku and uses Gunicorn as the web server.
 <https://werewolf-game-heroku.herokuapp.com/>
 
+### Note on requirements
+There were conflicts with dependencies which wouldn't work on Heroku, the combination now uses some older versions of packages
+
 ## Screenshots
 
 ### Werewolf
