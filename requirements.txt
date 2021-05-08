@@ -1,4 +1,4 @@
-eventlet==0.25.2
+eventlet==0.31.0
 gevent-websocket==0.10.1
 greenlet==0.4.15
 gunicorn==18.0 
